@@ -19,7 +19,8 @@ export const metadata = {
   description: "Skip the crowded gyms. Premium, commercial grade all-in-one workout benches imported in Ethiopia. Built for heavy lifts with zero monthly fees.",
   icons:{
     icon:"/logo_black.svg"
-  }
+  },
+  other: { "color-scheme": "only light" }
 };
 
 export default function RootLayout({ children }) {
