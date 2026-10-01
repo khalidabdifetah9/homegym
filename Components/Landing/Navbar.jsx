@@ -146,21 +146,6 @@ export default function Navbar() {
           transition={{ duration: 0.9, ease, delay: 0.6 }}
           className="pointer-events-auto relative"
         >
-          <span
-            className="absolute right-full top-0 h-4 w-4"
-            style={{
-              background:
-                "radial-gradient(circle at 0 100%, transparent 16px, #de322d 16.5px)",
-            }}
-          />
-          <span
-            className="absolute left-full top-0 h-4 w-4"
-            style={{
-              background:
-                "radial-gradient(circle at 100% 100%, transparent 16px, #de322d 16.5px)",
-            }}
-          />
-
           <button
             onClick={() => setOpen(!open)}
             aria-label={open ? "Close menu" : "Open menu"}
@@ -169,17 +154,17 @@ export default function Navbar() {
           >
             <span className="flex flex-col gap-1.25">
               <span
-                className={`block h-0.5 w-6 bg-black transition-transform duration-300 ${
+                className={`block h-0.5 w-6 bg-white transition-transform duration-300 md:bg-black ${
                   open ? "translate-y-1.75 rotate-45" : ""
                 }`}
               />
               <span
-                className={`block h-0.5 w-6 bg-black transition-opacity duration-300 ${
+                className={`block h-0.5 w-6 bg-white transition-opacity duration-300 md:bg-black ${
                   open ? "opacity-0" : ""
                 }`}
               />
               <span
-                className={`block h-0.5 w-6 bg-black transition-transform duration-300 ${
+                className={`block h-0.5 w-6 bg-white transition-transform duration-300 md:bg-black ${
                   open ? "-translate-y-1.75 -rotate-45" : ""
                 }`}
               />
