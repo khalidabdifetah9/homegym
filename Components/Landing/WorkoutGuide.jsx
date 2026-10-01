@@ -1,22 +1,28 @@
 "use client";
 
-import Image from "next/image";
 import { motion } from "framer-motion";
 
-const headline = "Train smarter with a dedicated workout guide";
+const headline = "Start training in three steps";
 
-const cards = [
+// "offset" pushes each step further right, like stairs
+const steps = [
   {
     number: "01",
-    title: "Push day",
-    muscles: "Chest · Shoulders · Triceps",
-    image: "/Benches/bench_one.avif",
+    title: "Scan your equipment",
+    text: "Scan the QR code on your bench label, or enter the printed serial number on the activation field",
+    offset: "ml-0",
   },
   {
     number: "02",
-    title: "Pull day",
-    muscles: "Back · Biceps · Rear delts",
-    image: "/Benches/bench_two.avif",
+    title: "Make it yours",
+    text: "Register with your pre filled serial number and phone number to link your purchase and unlock your account.",
+    offset: "ml-[7.5%] md:ml-[30%]",
+  },
+  {
+    number: "03",
+    title: "Start training",
+    text: "Access your digital workout guide, choose your training program, and track you progress.",
+    offset: "ml-[15%] md:ml-[60%]",
   },
 ];
 
@@ -28,16 +34,19 @@ const includes = [
 
 const ease = [0.22, 1, 0.36, 1];
 
+// The header and the bottom row play their children one after another
 const container = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.2 } },
 };
 
+// The headline plays its words one after another
 const headlineVariants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.12 } },
+  visible: { transition: { staggerChildren: 0.1 } },
 };
 
+// Each word is revealed from left to right
 const word = {
   hidden: { clipPath: "inset(0 100% 0 0)", x: -24, opacity: 0 },
   visible: {
@@ -48,115 +57,127 @@ const word = {
   },
 };
 
+// Simple fade up for everything else
 const fadeUp = {
   hidden: { y: 30, opacity: 0 },
   visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease } },
 };
 
-const card = {
-  hidden: { clipPath: "inset(0 100% 0 0)" },
-  visible: {
-    clipPath: "inset(0 0% 0 0)",
-    transition: { duration: 1.1, ease },
-  },
+// Each step plays its line, dot, number and text one after another
+const step = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.12 } },
 };
 
+// Lines draw themselves from left to right
 const line = {
   hidden: { scaleX: 0 },
-  visible: { scaleX: 1, transition: { duration: 1.4, ease } },
+  visible: { scaleX: 1, transition: { duration: 1.2, ease } },
+};
+
+// The dot on the line pops in
+const dot = {
+  hidden: { scale: 0 },
+  visible: { scale: 1, transition: { duration: 0.4, ease } },
 };
 
 export default function WorkoutGuide() {
   const words = headline.split(" ");
 
   return (
-    <motion.section
-      variants={container}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.15 }}
-      className="bg-[#0a0a0a] px-6 py-16 text-white md:px-17.5 md:py-25"
-    >
-      <motion.p
-        variants={fadeUp}
-        className="mb-10 flex items-center gap-3 text-xl"
+    <section className="bg-[#0a0a0a] px-6 py-16 text-white md:px-17.5 md:py-25">
+      {/* Header */}
+      <motion.div
+        variants={container}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
       >
-        <span className="relative flex h-2 w-2">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75"></span>
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-white"></span>
-        </span>
-        Workout Guide
-      </motion.p>
+        <motion.p
+          variants={fadeUp}
+          className="mb-10 flex items-center gap-3 text-xl"
+        >
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#d4d4d4] opacity-75"></span>
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-[#d4d4d4]"></span>
+          </span>
+          Activation Guide
+        </motion.p>
 
-      <motion.h2
-        variants={headlineVariants}
-        className="mb-8 max-w-5xl text-5xl font-semibold uppercase leading-none md:text-7xl"
-      >
-        {words.map((w, i) => (
-          <motion.span
-            key={i}
-            variants={word}
-            className="mr-[0.25em] inline-block align-top"
-          >
-            {w}
-          </motion.span>
-        ))}
-      </motion.h2>
+        <motion.h2
+          variants={headlineVariants}
+          className="mb-8 max-w-5xl text-5xl font-semibold uppercase leading-none md:text-7xl"
+        >
+          {words.map((w, i) => (
+            <motion.span
+              key={i}
+              variants={word}
+              className="mr-[0.25em] inline-block align-top"
+            >
+              {w}
+            </motion.span>
+          ))}
+        </motion.h2>
 
-      <motion.p
-        variants={fadeUp}
-        className="mb-16 max-w-130 font-poppins text-lg leading-snug text-white/75"
-      >
-        Every purchase comes with a workout guide that splits your training into
-        push and pull days, so you always know what to do next.
-      </motion.p>
+        <motion.p
+          variants={fadeUp}
+          className="mb-16 max-w-130 font-poppins text-base leading-snug text-white/75 md:mb-24 md:text-lg"
+        >
+          Every bench comes with a workout guide. Activate it in a few minutes
+          and start your first session.
+        </motion.p>
+      </motion.div>
 
-      <div className="mb-16 grid grid-cols-1 gap-6 md:grid-cols-2">
-        {cards.map((item) => (
+      {/* The staircase of steps, each plays when you scroll to it */}
+      <div className="mb-16 flex flex-col gap-12 md:mb-24 md:gap-16">
+        {steps.map((item) => (
           <motion.div
-            key={item.title}
-            variants={card}
-            className="group relative h-[70vh] overflow-hidden"
+            key={item.number}
+            variants={step}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.4 }}
+            className={`relative w-[85%] pt-8 md:w-[40%] ${item.offset}`}
           >
-            <Image
-              src={item.image}
-              alt={item.title}
-              fill
-              sizes="(min-width: 768px) 50vw, 100vw"
-              className="object-cover transition-transform duration-700 group-hover:scale-105"
+            {/* Line with a dot at the start */}
+            <motion.div
+              variants={line}
+              className="absolute left-0 top-0 h-px w-full origin-left bg-white/40"
             />
+         
 
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+            <motion.p
+              variants={fadeUp}
+              className="mb-6 text-7xl font-semibold leading-none text-[#d4d4d4] md:text-8xl"
+            >
+              {item.number}
+            </motion.p>
 
-            <div className="absolute inset-0 flex flex-col justify-between p-6 md:p-8">
-              <div className="flex items-center justify-between font-poppins text-sm uppercase tracking-[0.2em]">
-                <span>{item.number}</span>
-                <span className="text-white/70">Guide</span>
-              </div>
+            <motion.h3
+              variants={fadeUp}
+              className="mb-4 text-2xl font-semibold uppercase leading-tight md:text-3xl"
+            >
+              {item.title}
+            </motion.h3>
 
-              <div>
-                <h3 className="mb-3 text-5xl font-semibold uppercase leading-none md:text-6xl">
-                  {item.title}
-                </h3>
-                <p className="mb-6 font-poppins text-base text-white/75">
-                  {item.muscles}
-                </p>
-
-                <div className="mb-4 h-px w-full bg-white/40 transition-colors duration-300 group-hover:bg-[#de322d]" />
-
-                <p className="flex items-center justify-between font-poppins text-sm uppercase tracking-[0.2em]">
-                  Explore guide
-                  <span className="text-2xl transition-transform duration-300 group-hover:translate-x-2 group-hover:text-[#de322d]">
-                    →
-                  </span>
-                </p>
-              </div>
-            </div>
+            <motion.p
+              variants={fadeUp}
+              className="max-w-sm font-poppins text-base leading-snug text-white/70"
+            >
+              {item.text}
+            </motion.p>
           </motion.div>
         ))}
       </div>
 
-      <div className="relative grid grid-cols-1 gap-6 pt-8 md:grid-cols-3">
+      {/* What is inside the guide */}
+      <motion.div
+        variants={container}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.5 }}
+        className="relative grid grid-cols-1 gap-6 pt-8 md:grid-cols-3"
+      >
         <motion.div
           variants={line}
           className="absolute left-0 top-0 h-px w-full origin-left bg-white/40"
@@ -171,7 +192,7 @@ export default function WorkoutGuide() {
             {text}
           </motion.p>
         ))}
-      </div>
-    </motion.section>
+      </motion.div>
+    </section>
   );
 }

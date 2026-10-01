@@ -1,34 +1,24 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
 const headline = "Your Entire Gym. Right at Home.";
 
 const buttons = [
-  { label: "Order Product", href: "/order", main: true },
+  { label: "Contact Us", href: "/contact_us", main: true },
   { label: "View Products", href: "/products", main: false },
 ];
 
 const ease = [0.22, 1, 0.36, 1];
 
+// The section plays its blocks one after another
 const section = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.3 } },
-};
-
-const imageWipe = {
-  hidden: { clipPath: "inset(0 100% 0 0)" },
-  visible: {
-    clipPath: "inset(0 0% 0 0)",
-    transition: { duration: 1.4, ease },
-  },
-};
-
-const imageZoom = {
-  hidden: { scale: 1.3 },
-  visible: { scale: 1, transition: { duration: 2.4, ease } },
+  visible: { transition: { staggerChildren: 0.2 } },
 };
 
 const textBlock = {
@@ -58,6 +48,18 @@ const fadeUp = {
 
 export default function CTA() {
   const words = headline.split(" ");
+  const router = useRouter();
+  const [serial, setSerial] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const value = serial.trim();
+    if (!value) return;
+
+    // Replace this with your real serial number check.
+    // For now it sends the user to the workout guide with the serial number.
+    router.push(`/workout-guide?serial=${encodeURIComponent(value)}`);
+  };
 
   return (
     <motion.section
@@ -67,24 +69,20 @@ export default function CTA() {
       viewport={{ once: true, amount: 0.3 }}
       className="relative h-svh w-full overflow-hidden bg-[#0a0a0a] text-white"
     >
-      {/* Full screen image */}
-      <motion.div
-        variants={imageWipe}
-        className="absolute inset-0 overflow-hidden"
-      >
-        <motion.div variants={imageZoom} className="absolute inset-0">
-          <Image
-            src="/Benches/bench_three.avif"
-            alt="Home gym"
-            fill
-            sizes="100vw"
-            className="object-cover object-center"
-          />
-        </motion.div>
+      {/* Full screen image, no animation */}
+      <div className="absolute inset-0 overflow-hidden">
+        <Image
+          src="/Benches/bench_three.avif"
+          alt="Home gym"
+          fill
+          sizes="100vw"
+          className="object-cover object-center"
+        />
 
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 to-black/60" />
-      </motion.div>
+      </div>
 
+      {/* Top left: text */}
       <motion.div
         variants={textBlock}
         className="absolute left-6 top-20 z-10 md:left-17.5 md:top-25"
@@ -116,25 +114,74 @@ export default function CTA() {
         </motion.h2>
       </motion.div>
 
-      <motion.div
-        variants={textBlock}
-        className="absolute bottom-8 left-6 right-6 z-10 flex flex-col gap-3 sm:left-auto sm:w-auto sm:flex-row md:bottom-10 md:right-17.5"
-      >
-        {buttons.map((item) => (
-          <motion.div key={item.label} variants={fadeUp}>
-            <Link
-              href={item.href}
-              className={`group flex items-center justify-between gap-10 border px-6 py-4 font-poppins text-xs uppercase tracking-[0.15em] transition-colors duration-300 md:py-5 md:text-sm ${
-                item.main
-                  ? "border-[#de322d] bg-[#de322d] hover:bg-transparent"
-                  : "border-white/40 bg-black/20 backdrop-blur-md hover:border-[#de322d] hover:text-[#de322d]"
-              }`}
+      {/* Bottom: serial number form on the left, buttons on the right */}
+      <div className="absolute inset-x-6 bottom-8 z-10 flex flex-col gap-8 md:inset-x-17.5 md:bottom-10 lg:flex-row lg:items-end lg:justify-between">
+        <motion.div variants={textBlock} className="w-full max-w-md">
+          <motion.p
+            variants={fadeUp}
+            className="mb-3 font-poppins text-xs uppercase tracking-[0.2em] text-white/70"
+          >
+            Already have a serial number?
+          </motion.p>
+
+          <motion.form
+            variants={fadeUp}
+            onSubmit={handleSubmit}
+            className="relative"
+          >
+            <input
+              type="text"
+              value={serial}
+              onChange={(e) => setSerial(e.target.value)}
+              placeholder="Enter your serial number"
+              aria-label="Serial number"
+              autoComplete="off"
+              required
+              className="w-full border-b border-white/40 bg-transparent py-4 pr-14 font-poppins text-base uppercase tracking-[0.1em] text-white outline-none transition-colors duration-300 placeholder:normal-case placeholder:tracking-normal placeholder:text-white/50 focus:border-[#d4d4d4]"
+            />
+            <button
+              type="submit"
+              aria-label="Submit serial number"
+              className="absolute right-0 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center bg-[#d4d4d4] text-xl text-black transition-colors duration-300 hover:bg-white"
             >
-              {item.label}
+              →
+            </button>
+          </motion.form>
+
+          <motion.p
+            variants={fadeUp}
+            className="mt-4 font-poppins text-sm text-white/70"
+          >
+            Don&apos;t have one?{" "}
+            <Link
+              href="/register"
+              className="text-[#d4d4d4] underline underline-offset-4 transition-colors duration-300 hover:text-white"
+            >
+              Register here
             </Link>
-          </motion.div>
-        ))}
-      </motion.div>
+          </motion.p>
+        </motion.div>
+
+        <motion.div
+          variants={textBlock}
+          className="flex flex-col gap-3 sm:flex-row"
+        >
+          {buttons.map((item) => (
+            <motion.div key={item.label} variants={fadeUp}>
+              <Link
+                href={item.href}
+                className={`group flex items-center justify-between gap-10 border px-6 py-4 font-poppins text-xs uppercase tracking-[0.15em] transition-colors duration-300 md:py-5 md:text-sm ${
+                  item.main
+                    ? "border-[#d4d4d4] bg-[#d4d4d4] text-black hover:bg-transparent hover:text-white"
+                    : "border-white/40 bg-black/20 backdrop-blur-md hover:border-[#d4d4d4] hover:text-[#d4d4d4]"
+                }`}
+              >
+                {item.label}
+              </Link>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
     </motion.section>
   );
 }

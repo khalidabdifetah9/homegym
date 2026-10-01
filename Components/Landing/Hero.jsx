@@ -6,63 +6,36 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Noto_Sans_Ethiopic } from "next/font/google";
 
-// Only used for the Amharic words
 const ethiopic = Noto_Sans_Ethiopic({ subsets: ["ethiopic"] });
 
 const lines = ["አንድ Bench", "ነፍ Workout"];
 
+const info = ["26+ EXERCISES", "Fast delivery & set up", "Dedicated Training Guide"];
+
 const links = [
-  { label: "Place Order", href: "/order", main: true },
+  { label: "Contact Us", href: "/contact_us", main: true },
   { label: "Products", href: "/products", main: false },
 ];
 
 const ease = [0.22, 1, 0.36, 1];
 
-// True if the word contains Amharic letters
 const isAmharic = (text) => /[\u1200-\u137F]/.test(text);
 
-// The section plays the image first, then the panel
 const section = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.35 } },
 };
 
-// The image is wiped open from left to right
-const imageWipe = {
-  hidden: { clipPath: "inset(0 100% 0 0)" },
-  visible: {
-    clipPath: "inset(0 0% 0 0)",
-    transition: { duration: 1.4, ease },
-  },
+const content = {
+  hidden: {},
+  visible: { transition: { delayChildren: 0.3, staggerChildren: 0.15 } },
 };
 
-// The image slowly settles from zoomed in to normal
-const imageZoom = {
-  hidden: { scale: 1.3 },
-  visible: { scale: 1, transition: { duration: 2.4, ease } },
-};
-
-// The blur panel rises from the bottom, then plays its children
-const panel = {
-  hidden: { y: "100%" },
-  visible: {
-    y: "0%",
-    transition: {
-      duration: 1.1,
-      ease,
-      delayChildren: 0.4,
-      staggerChildren: 0.12,
-    },
-  },
-};
-
-// The headline plays its words one after another
 const headlineVariants = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.12 } },
 };
 
-// Each word is revealed from left to right
 const word = {
   hidden: { clipPath: "inset(0 100% 0 0)", x: -24, opacity: 0 },
   visible: {
@@ -73,28 +46,23 @@ const word = {
   },
 };
 
-// Simple fade up for everything else
 const fadeUp = {
   hidden: { y: 30, opacity: 0 },
   visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease } },
 };
 
-// Lines draw themselves from left to right
 const line = {
   hidden: { scaleX: 0 },
-  visible: { scaleX: 1, transition: { duration: 1.2, ease } },
+  visible: { scaleX: 1, transition: { duration: 1.4, ease } },
 };
 
 export default function Hero() {
-  // The animation waits until the image is ready
   const [ready, setReady] = useState(false);
   const imageRef = useRef(null);
 
   useEffect(() => {
-    // The image may already be loaded from cache before React was ready
     if (imageRef.current?.complete) setReady(true);
 
-    // Safety: start anyway after 3 seconds if the image is very slow
     const timer = setTimeout(() => setReady(true), 3000);
     return () => clearTimeout(timer);
   }, []);
@@ -106,50 +74,30 @@ export default function Hero() {
       animate={ready ? "visible" : "hidden"}
       className="relative h-svh w-full overflow-hidden bg-[#0a0a0a] text-white"
     >
-      <motion.div
-        variants={imageWipe}
-        className="absolute inset-0 overflow-hidden"
-      >
-        <motion.div variants={imageZoom} className="absolute inset-0">
-          <Image
-            ref={imageRef}
-            src="/Landing_Img/Hero_Img.avif"
-            alt="Home gym"
-            fill
-            priority
-            quality={70}
-            sizes="100vw"
-            onLoad={() => setReady(true)}
-            onError={() => setReady(true)}
-            className="object-cover"
-          />
-        </motion.div>
-        <div className="absolute inset-0 bg-black/20" />
-      </motion.div>
-
-      <motion.div
-        variants={panel}
-        className="absolute inset-x-0 bottom-0 border-t border-white/20 bg-black/25 px-6 pb-6 pt-5 backdrop-blur-2xl md:px-17.5 md:pb-10 md:pt-6"
-      >
-        <motion.div
-          variants={fadeUp}
-          className="mb-4 flex items-center justify-between font-poppins text-[10px] font-light uppercase tracking-[0.15em] text-white/70 sm:text-[11px] md:mb-6"
-        >
-          <span>Home Gym Gear</span>
-          <span>Lifetime Access</span>
-          <span className="hidden sm:block">One Time Purchase</span>
-        </motion.div>
-
-        <motion.div
-          variants={line}
-          className="mb-5 h-px origin-left bg-white/30 md:mb-8"
+      {/* Static Background Image Container */}
+      <div className="absolute inset-0 overflow-hidden">
+        <Image
+          ref={imageRef}
+          src="/Landing_Img/hh.png"
+          alt="Home gym"
+          fill
+          priority
+          sizes="100vw"
+          onLoad={() => setReady(true)}
+          onError={() => setReady(true)}
+          className="object-cover"
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/25" />
+      </div>
 
-        <div className="grid grid-cols-1 items-end gap-6 lg:grid-cols-[1.4fr_1fr] lg:gap-16">
-          {/* Big heading */}
+      <motion.div
+        variants={content}
+        className="absolute inset-0 flex flex-col px-6 pb-8 pt-24 md:px-17.5 md:pb-12 lg:pt-12"
+      >
+        <div className="flex flex-1 items-start lg:items-center">
           <motion.h1
             variants={headlineVariants}
-            className="text-[12vw] font-extrabold uppercase leading-[0.95] sm:text-[9vw] lg:text-[6.5vw]"
+            className="text-[11vw] font-extrabold uppercase leading-[0.95] sm:text-[10vw] lg:text-[4.8vw]"
           >
             {lines.map((text) => (
               <span key={text} className="block">
@@ -157,9 +105,9 @@ export default function Hero() {
                   <motion.span
                     key={i}
                     variants={word}
-                    className={`mr-[0.25em] inline-block align-top ${
+                    className={`mr-[0.25em] inline-block align-top lg:mr-0 lg:block ${
                       isAmharic(w)
-                        ? `${ethiopic.className} text-[1.15em] font-black leading-[0.85]`
+                        ? `${ethiopic.className} text-[1.15em] font-black leading-[0.9]`
                         : ""
                     }`}
                   >
@@ -169,37 +117,46 @@ export default function Hero() {
               </span>
             ))}
           </motion.h1>
+        </div>
 
-          {/* Text and links */}
-          <div>
-            <motion.p
-              variants={fadeUp}
-              className="mb-5 max-w-sm font-poppins text-sm leading-snug text-white/80 md:mb-8 md:text-lg"
-            >
-              Build your gym once. Train for life. Everything you need for a
-              complete home workout, in one place.
-            </motion.p>
+        <motion.div
+          variants={fadeUp}
+          className="mb-4 flex items-center justify-between font-poppins text-[10px] font-light uppercase tracking-[0.15em] text-white/70 sm:text-[11px] md:mb-6"
+        >
+          <span className="flex items-center gap-3">{info[0]}</span>
+          <span>{info[1]}</span>
+          <span className="hidden sm:block">{info[2]}</span>
+        </motion.div>
 
-            <div className="flex flex-col gap-3 sm:flex-row">
-              {links.map((item) => (
-                <motion.div
-                  key={item.label}
-                  variants={fadeUp}
-                  className="flex-1"
+        <motion.div
+          variants={line}
+          className="mb-6 h-px origin-left bg-[#d4d4d4]/60 md:mb-8"
+        />
+
+        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+          <motion.p
+            variants={fadeUp}
+            className="max-w-sm font-poppins text-sm leading-snug text-white/80 md:text-lg"
+          >
+            Build your gym once. Train for life. Everything you need for a
+            complete home workout, in one place.
+          </motion.p>
+
+          <div className="flex flex-col gap-3 sm:flex-row">
+            {links.map((item) => (
+              <motion.div key={item.label} variants={fadeUp}>
+                <Link
+                  href={item.href}
+                  className={`flex items-center justify-center border px-8 py-3.5 font-poppins text-xs uppercase tracking-[0.15em] transition-colors duration-300 md:py-4 md:text-sm ${
+                    item.main
+                      ? "border-[#d4d4d4] bg-[#d4d4d4] text-black hover:bg-transparent hover:text-[#d4d4d4]"
+                      : "border-white/40 hover:border-[#d4d4d4] hover:text-[#d4d4d4]"
+                  }`}
                 >
-                  <Link
-                    href={item.href}
-                    className={`group flex items-center justify-between border px-5 py-3.5 font-poppins text-xs uppercase tracking-[0.15em] transition-colors duration-300 md:py-4 md:text-sm ${
-                      item.main
-                        ? "border-[#de322d] bg-[#de322d] hover:bg-transparent"
-                        : "border-white/40 hover:border-[#de322d] hover:text-[#de322d]"
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
+                  {item.label}
+                </Link>
+              </motion.div>
+            ))}
           </div>
         </div>
       </motion.div>

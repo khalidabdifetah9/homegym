@@ -5,25 +5,25 @@ import { motion } from "framer-motion";
 const features = [
   {
     word: "Heavy Duty",
-    title: "Commercial Level steel",
-    text: "Imported industrial steel built to handle heavy bench presses, squats, and hard daily training.",
+    title: "high end thick rhs",
+    text: "Built with thick, high quality steel to withstand heavy loads and years of training stable, solid, and made to last",
     offset: "md:ml-0",
   },
   {
     word: "Versatile",
-    title: "10+ Workouts in one",
-    text: "Multi angle bench adjustments for incline, decline, and flat lifts your entire gym in a single setup.",
+    title: "26+ EXERCISES",
+    text: "Incline, decline, flat, pull ups, dips, and more giving you more ways to train",
     offset: "md:ml-[30%]",
   },
   {
     word: "Space Smart",
     title: "Fits any room",
-    text: "Engineered for maximum stability without taking over your living area. Easy to position and store.",
+    text: "The bench attachments are Easley assembled and Adjustable. And  the Adjustable dumbbell levels up and down without filling your home with equipment",
     offset: "md:ml-[10%]",
   },
   {
     word: "Local",
-    title: "Fast delivery & support",
+    title: "Fast delivery & set up",
     text: "Direct setup help, quick local delivery across Addis Ababa, and gear ready to train on day one.",
     offset: "md:ml-[40%]",
   },
@@ -95,10 +95,9 @@ export default function Features() {
               </motion.div>
             </div>
 
-            {/* Line turns red on hover */}
             <motion.div
               variants={line}
-              className="h-px origin-left bg-white/40 transition-colors duration-300 group-hover:bg-[#de322d]"
+              className="h-px origin-left bg-white/40 transition-colors duration-300 group-hover:bg-[#d4d4d4]"
             />
           </motion.div>
         ))}

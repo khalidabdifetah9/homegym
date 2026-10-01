@@ -8,8 +8,8 @@ import { motion, AnimatePresence } from "framer-motion";
 const links = [
   { label: "Home", href: "/" },
   { label: "Products", href: "/products" },
-  { label: "Place Order", href: "/order" },
-  { label: "Workout Guide", href: "/workout-guide" },
+  { label: "Contact Us", href: "/contact_us" },
+  { label: "Register", href: "/register" },
 ];
 
 const ease = [0.22, 1, 0.36, 1];
@@ -86,12 +86,12 @@ export default function Navbar() {
               clipPath: "inset(0 0 100% 0)",
               transition: { duration: 0.7, ease },
             }}
-            className="fixed inset-0 z-40 flex h-svh flex-col justify-between overflow-y-auto bg-[#de322d] px-6 pb-8 pt-6 text-white md:px-17.5 md:pb-10"
+            className="fixed inset-0 z-40 flex h-svh flex-col justify-between overflow-y-auto bg-[#d4d4d4] px-6 pb-8 pt-6 text-white md:px-17.5 md:pb-10"
           >
             <motion.div variants={fadeUp}>
               <Link href="/" onClick={() => setOpen(false)} aria-label="Home">
                 <Image
-                  src="/logo.svg"
+                  src="/logo_black.svg"
                   alt="Logo"
                   width={56}
                   height={56}
@@ -109,7 +109,7 @@ export default function Navbar() {
                     className="group flex items-center justify-between py-4 md:py-5"
                   >
                     <span className="flex items-baseline gap-4 md:gap-6">
-                      <span className="font-poppins text-sm text-white/70">
+                      <span className="font-poppins text-sm text-black/70">
                         0{i + 1}
                       </span>
                       <motion.span
@@ -118,10 +118,6 @@ export default function Navbar() {
                       >
                         {item.label}
                       </motion.span>
-                    </span>
-
-                    <span className="text-2xl transition-transform duration-300 group-hover:translate-x-2 group-hover:text-black md:text-4xl">
-                      →
                     </span>
                   </Link>
 
@@ -135,7 +131,7 @@ export default function Navbar() {
 
             <motion.p
               variants={fadeUp}
-              className="font-poppins text-[11px] font-light tracking-[0.15em] text-white/80"
+              className="font-poppins text-[11px] font-light tracking-[0.15em] text-black/80"
             >
               BUILD YOUR GYM ONCE. TRAIN FOR LIFE.
             </motion.p>
@@ -169,21 +165,21 @@ export default function Navbar() {
             onClick={() => setOpen(!open)}
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
-            className="flex h-10 w-36 items-center justify-center rounded-b-2xl bg-[#de322d] md:h-11 md:w-40"
+            className="flex h-10 w-36 items-center justify-center rounded-b-2xl bg-[#d4d4d4] md:h-11 md:w-40"
           >
             <span className="flex flex-col gap-1.25">
               <span
-                className={`block h-0.5 w-6 bg-white transition-transform duration-300 ${
+                className={`block h-0.5 w-6 bg-black transition-transform duration-300 ${
                   open ? "translate-y-1.75 rotate-45" : ""
                 }`}
               />
               <span
-                className={`block h-0.5 w-6 bg-white transition-opacity duration-300 ${
+                className={`block h-0.5 w-6 bg-black transition-opacity duration-300 ${
                   open ? "opacity-0" : ""
                 }`}
               />
               <span
-                className={`block h-0.5 w-6 bg-white transition-transform duration-300 ${
+                className={`block h-0.5 w-6 bg-black transition-transform duration-300 ${
                   open ? "-translate-y-1.75 -rotate-45" : ""
                 }`}
               />

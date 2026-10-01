@@ -23,16 +23,16 @@ const columns = [
     title: "Shop",
     links: [
       { label: "Products", href: "/products" },
-      { label: "Place Order", href: "/order" },
-      { label: "Workout Guide", href: "/workout-guide" },
+      { label: "Contact Us", href: "/contact_us" },
+      { label: "Register", href: "/register" },
     ],
   },
   {
     title: "Follow",
     links: [
-      { label: "Instagram", href: "#" },
-      { label: "TikTok", href: "#" },
-      { label: "Telegram", href: "#" },
+      { label: "Instagram", href: "https://instagram.com/wendawendhomegym" },
+      { label: "TikTok", href: "https://tiktok.com/@wenda_wend" },
+      { label: "Telegram", href: "https://t.me/Wendawendhomegymequipment" },
     ],
   },
 ];
@@ -100,9 +100,9 @@ export default function Footer() {
             cx="200"
             cy="200"
             r="196"
-            fill="#de322d"
+            fill="#d4d4d4"
             fillOpacity="0.08"
-            stroke="#de322d"
+            stroke="#d4d4d4"
             strokeWidth="2"
           />
           <circle
@@ -110,7 +110,7 @@ export default function Footer() {
             cy="200"
             r="132"
             fill="none"
-            stroke="#de322d"
+            stroke="#d4d4d4"
             strokeOpacity="0.4"
             strokeWidth="1"
           />
@@ -118,7 +118,7 @@ export default function Footer() {
           <text
             fontSize="26"
             fontWeight="700"
-            fill="#de322d"
+            fill="#d4d4d4"
             className="font-sans"
           >
             <textPath
@@ -169,7 +169,7 @@ export default function Footer() {
             variants={fadeUp}
             className="max-w-md font-poppins text-base leading-snug text-white/70 md:text-lg"
           >
-            Skip the commute, drop the monthly fees, and own your daily training.
+            Train on your time train in your space
           </motion.p>
         </div>
 
@@ -190,7 +190,7 @@ export default function Footer() {
                     <li key={item.label}>
                       <Link
                         href={item.href}
-                        className="inline-block font-poppins text-base transition-all duration-300 hover:translate-x-1 hover:text-[#de322d]"
+                        className="inline-block font-poppins text-base transition-all duration-300 hover:translate-x-1 hover:text-[#d4d4d4]"
                       >
                         {item.label}
                       </Link>
@@ -214,7 +214,7 @@ export default function Footer() {
             <motion.button
               variants={fadeUp}
               onClick={scrollToTop}
-              className="group flex items-center gap-3 transition-colors duration-300 hover:text-[#de322d]"
+              className="group flex items-center gap-3 transition-colors duration-300 hover:text-[#d4d4d4]"
             >
               Back to top
               <span className="text-lg transition-transform duration-300 group-hover:-translate-y-1">

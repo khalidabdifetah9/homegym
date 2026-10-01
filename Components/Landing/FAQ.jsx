@@ -7,37 +7,43 @@ const headline = "Got questions? We have answers";
 const faqs = [
   {
     question: "How long does shipping take?",
-    answer: "Most orders arrive within 3 to 7 business days, and you get a tracking link as soon as it ships.",
+    answer:
+      "Most orders arrive within 3 to 7 business days, and you get a tracking link as soon as it ships.",
     position: "lg:left-[0%] lg:top-[2%]",
     tilt: "lg:-rotate-3",
   },
   {
     question: "Is assembly difficult?",
-    answer: "Not at all. Every item comes with the tools and a simple step-by-step guide. Most take under 30 minutes.",
+    answer:
+      "Not at all. Every item comes with the tools and a simple step by step guide. Most take under 30 minutes.",
     position: "lg:left-[32%] lg:top-[0%]",
     tilt: "lg:rotate-2",
   },
   {
     question: "How much space do I need?",
-    answer: "Most of our gear folds or stacks away, so a small corner of a room is enough to get started.",
+    answer:
+      "Most of our gear folds or stacks away, so a small corner of a room is enough to get started.",
     position: "lg:left-[62%] lg:top-[8%]",
     tilt: "lg:-rotate-2",
   },
   {
     question: "Is there a warranty?",
-    answer: "Yes. All equipment is covered by a 2 year warranty against defects in materials and build.",
+    answer:
+      "Yes. All equipment is covered by a 2 year warranty against defects in materials and build.",
     position: "lg:left-[6%] lg:top-[42%]",
     tilt: "lg:rotate-3",
   },
   {
     question: "Can I return my order?",
-    answer: "You can return any unused item within 30 days for a full refund. No questions asked.",
+    answer:
+      "You can return any unused item within 30 days for a full refund. No questions asked.",
     position: "lg:left-[37%] lg:top-[38%]",
     tilt: "lg:-rotate-3",
   },
   {
     question: "Is it good for beginners?",
-    answer: "Absolutely. The workout guide takes you from your first session to advanced training at your own pace.",
+    answer:
+      "Absolutely. The workout guide takes you from your first session to advanced training at your own pace.",
     position: "lg:left-[66%] lg:top-[48%]",
     tilt: "lg:rotate-2",
   },
@@ -45,19 +51,16 @@ const faqs = [
 
 const ease = [0.22, 1, 0.36, 1];
 
-// The section plays its children one after another
 const container = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.15 } },
 };
 
-// The headline plays its words one after another
 const headlineVariants = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.12 } },
 };
 
-// Each word is revealed from left to right
 const word = {
   hidden: { clipPath: "inset(0 100% 0 0)", x: -24, opacity: 0 },
   visible: {
@@ -68,7 +71,6 @@ const word = {
   },
 };
 
-// Simple fade up for everything else
 const fadeUp = {
   hidden: { y: 30, opacity: 0 },
   visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease } },
@@ -83,7 +85,7 @@ export default function FAQ() {
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.15 }}
-      className="bg-[#0a0a0a] px-6 py-16 text-white md:px-17.5 md:py-25"
+      className="bg-black px-6 py-16 text-white md:max-h-[150vh] md:px-17.5 md:pt-25"
     >
       <motion.p
         variants={fadeUp}
@@ -118,7 +120,6 @@ export default function FAQ() {
         Hover a card to see the answer
       </motion.p>
 
-      {/* Grid on small screens, scattered cards on large screens */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:relative lg:block lg:h-[950px]">
         {faqs.map((item, i) => (
           <motion.div
@@ -127,9 +128,8 @@ export default function FAQ() {
             className={`group lg:absolute lg:w-[280px] lg:hover:z-20 ${item.position}`}
           >
             <div
-              className={`relative h-56 border border-white/20 bg-[#111] transition-all duration-500 group-hover:border-[#de322d] group-hover:bg-[#de322d] lg:group-hover:rotate-0 lg:group-hover:scale-105 ${item.tilt}`}
+              className={`relative h-56 border border-white/20 bg-[#111] transition-all duration-500 group-hover:border-[#d4d4d4] group-hover:bg-[#d4d4d4] lg:group-hover:rotate-0 lg:group-hover:scale-105 ${item.tilt}`}
             >
-              {/* Question, fades out on hover */}
               <div className="absolute inset-0 flex flex-col justify-between p-6 transition-opacity duration-300 group-hover:opacity-0">
                 <span className="font-poppins text-sm uppercase tracking-[0.2em] text-white/60">
                   0{i + 1}
@@ -139,12 +139,11 @@ export default function FAQ() {
                 </h3>
               </div>
 
-              {/* Answer, fades in on hover */}
               <div className="absolute inset-0 flex flex-col justify-between p-6 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                <span className="font-poppins text-sm uppercase tracking-[0.2em]">
+                <span className="font-poppins text-black text-sm uppercase tracking-[0.2em]">
                   Answer
                 </span>
-                <p className="font-poppins text-base leading-snug">
+                <p className="font-poppins text-black text-base leading-snug">
                   {item.answer}
                 </p>
               </div>

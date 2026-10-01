@@ -3,24 +3,25 @@
 import { motion } from "framer-motion";
 
 const headline =
-  "Over the years, we've equipped hundreds of home lifters across addis ababa delivering commercial grade gear";
+  "We design and build heavy duty, multi functional equipments that brings the essentials of a complete training setup into your home giving you the freedom to train on your own time, in your own space.";
 
 const stats = [
-  { number: "100+", label: "Active Customer" },
-  { number: "4+", label: "Years in business" },
-  { number: "10+", label: "Workouts From One Bench" },
+  { number: "780+", label: "Active Customer" },
+  { number: "2+", label: "Years in business" },
+  { number: "26+", label: "Workouts From One Bench" },
 ];
 
 const ease = [0.22, 1, 0.36, 1];
 
 const container = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.2 } },
+  visible: { transition: { staggerChildren: 0.1 } },
 };
 
+// Short gap between words, because the headline has many words
 const headlineVariants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.12 } },
+  visible: { transition: { staggerChildren: 0.025 } },
 };
 
 const word = {
@@ -29,18 +30,18 @@ const word = {
     clipPath: "inset(0 0% 0 0)",
     x: 0,
     opacity: 1,
-    transition: { duration: 0.7, ease },
+    transition: { duration: 0.45, ease },
   },
 };
 
 const fadeUp = {
   hidden: { y: 30, opacity: 0 },
-  visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease } },
+  visible: { y: 0, opacity: 1, transition: { duration: 0.6, ease } },
 };
 
 const line = {
   hidden: { scaleX: 0 },
-  visible: { scaleX: 1, transition: { duration: 1.4, ease } },
+  visible: { scaleX: 1, transition: { duration: 1, ease } },
 };
 
 export default function BrandOverview() {
@@ -52,7 +53,7 @@ export default function BrandOverview() {
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.3 }}
-      className="flex min-h-screen flex-col justify-end bg-[#0a0a0a] px-6 py-16 text-white md:px-[70px] md:py-[100px]"
+      className="flex min-h-[85vh] flex-col justify-end bg-[#0a0a0a] px-6 py-16 text-white md:px-[70px] md:pb-[150px]"
     >
       <motion.p
         variants={fadeUp}
@@ -67,7 +68,7 @@ export default function BrandOverview() {
 
       <motion.h2
         variants={headlineVariants}
-        className="mb-20 text-[clamp(2.2rem,6vw,5.5rem)] font-semibold uppercase leading-none"
+        className="mb-20 text-[clamp(1.5rem,2.8vw,3.25rem)] font-semibold uppercase leading-[1.1]"
       >
         {words.map((w, i) => (
           <motion.span
@@ -79,27 +80,6 @@ export default function BrandOverview() {
           </motion.span>
         ))}
       </motion.h2>
-
-      <div className="mb-16 flex flex-wrap gap-12">
-        <motion.p
-          variants={fadeUp}
-          className="max-w-[500px] font-poppins text-base leading-snug text-white/75"
-        >
-          ወንዳወንድ Home Gym was founded with a simple vision: to give every lifter
-          access to professional grade equipment without the hassle of a crowded
-          gym. What started as a effort to source reliable gear has grown into a
-          premier supplier of multi functional home fitness stations.
-        </motion.p>
-        <motion.p
-          variants={fadeUp}
-          className="max-w-[500px] font-poppins text-base leading-snug text-white/75"
-        >
-          Tired of waiting 45 minutes for that guy to finish scrolling TikTok on
-          the flat bench? Get your own bench from ወንዳወንድ Home
-          Gym and actually get your workout done in the comfort of your own
-          home.
-        </motion.p>
-      </div>
 
       <div className="relative flex flex-wrap gap-10 pt-8 md:gap-20">
         <motion.div
