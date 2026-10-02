@@ -8,6 +8,7 @@ import { Noto_Sans_Ethiopic } from "next/font/google";
 
 const ethiopic = Noto_Sans_Ethiopic({ subsets: ["ethiopic"] });
 
+// Files in public/Landing_Img/
 const MOBILE_IMAGE = "/Landing_Img/hero_formobile.png";
 const DESKTOP_IMAGE = "/Landing_Img/hero_forpc.png";
 
@@ -116,7 +117,7 @@ export default function Hero() {
 
       <motion.div
         variants={content}
-        className="relative flex flex-col px-6 -mt-15 pb-2 pt-3 md:absolute md:inset-0 md:px-17.5 md:pb-12 md:pt-24 lg:pt-12"
+        className="relative flex flex-col px-6 -mt-8 pb-5 pt-3 md:absolute md:inset-0 md:px-17.5 md:pb-12 md:pt-24 lg:pt-12"
       >
         <motion.h1
           variants={fadeUp}
