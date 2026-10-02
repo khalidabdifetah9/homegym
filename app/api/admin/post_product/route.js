@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db"; // adjust to where your drizzle instance lives
 import { products } from "@/db/schema"; // adjust to where your schema lives
-
+import { revalidatePath } from "next/cache";
 function errorResponse(message, status, errors = null) {
   return NextResponse.json(
     { success: false, message, ...(errors && { errors }) },
-    { status }
+    { status },
   );
 }
 
@@ -68,6 +68,7 @@ export async function POST(request) {
         imageUrl: body.imageUrl.trim(),
       })
       .returning();
+    revalidatePath("/products");
 
     return NextResponse.json(
       {
@@ -75,7 +76,7 @@ export async function POST(request) {
         message: "Product posted successfully!",
         product,
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (err) {
     console.error("post_product error:", err);

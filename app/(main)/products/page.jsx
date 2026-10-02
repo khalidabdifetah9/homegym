@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import React from "react";
 import ProductsPage from "@/Components/Products/Products";
 export const metadata = {
