@@ -45,7 +45,7 @@ export default function BrandOverview() {
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.3 }}
-      className="flex min-h-[85vh] flex-col justify-end bg-[#0a0a0a] -mt-10 px-6 text-white md:px-[70px] md:pb-[150px]"
+      className="flex min-h-[85vh] flex-col justify-end bg-[#0a0a0a] -mt-25 px-6 text-white md:px-[70px] md:pb-[150px]"
     >
       <motion.p
         variants={fadeUp}
