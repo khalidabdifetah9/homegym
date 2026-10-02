@@ -107,53 +107,7 @@ export default function CTA() {
         </motion.h2>
       </motion.div>
 
-      <div className="absolute inset-x-6 bottom-8 z-10 flex flex-col gap-8 md:inset-x-17.5 md:bottom-10 lg:flex-row lg:items-end lg:justify-between">
-        <motion.div variants={textBlock} className="w-full max-w-md">
-          <motion.p
-            variants={fadeUp}
-            className="mb-3 font-poppins text-xs uppercase tracking-[0.2em] text-white/70"
-          >
-            Already have a serial number?
-          </motion.p>
-
-          <motion.form
-            variants={fadeUp}
-            onSubmit={handleSubmit}
-            className="relative"
-          >
-            <input
-              type="text"
-              value={serial}
-              onChange={(e) => setSerial(e.target.value)}
-              placeholder="Enter your serial number"
-              aria-label="Serial number"
-              autoComplete="off"
-              required
-              className="w-full border-b border-white/40 bg-transparent py-4 pr-14 font-poppins text-base uppercase tracking-[0.1em] text-white outline-none transition-colors duration-300 placeholder:normal-case placeholder:tracking-normal placeholder:text-white/50 focus:border-[#d4d4d4]"
-            />
-            <button
-              type="submit"
-              aria-label="Submit serial number"
-              className="absolute right-0 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center bg-[#d4d4d4] text-xl text-black transition-colors duration-300 hover:bg-white"
-            >
-              →
-            </button>
-          </motion.form>
-
-          <motion.p
-            variants={fadeUp}
-            className="mt-4 font-poppins text-sm text-white/70"
-          >
-            Don&apos;t have one?{" "}
-            <Link
-              href="/register"
-              className="text-[#d4d4d4] underline underline-offset-4 transition-colors duration-300 hover:text-white"
-            >
-              Register here
-            </Link>
-          </motion.p>
-        </motion.div>
-
+      <div className="absolute inset-x-6  bottom-25 z-10 flex flex-col gap-8 md:inset-x-17.5 md:bottom-10 lg:flex-row lg:items-end lg:justify-end">
         <motion.div
           variants={textBlock}
           className="flex flex-col gap-3 sm:flex-row"

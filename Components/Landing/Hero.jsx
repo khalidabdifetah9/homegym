@@ -8,6 +8,9 @@ import { Noto_Sans_Ethiopic } from "next/font/google";
 
 const ethiopic = Noto_Sans_Ethiopic({ subsets: ["ethiopic"] });
 
+const MOBILE_IMAGE = "/Landing_Img/hero_formobile.png";
+const DESKTOP_IMAGE = "/Landing_Img/hero_forpc.png";
+
 const lines = ["ወንዳወንድ", "Home Gym"];
 
 const info = [
@@ -17,7 +20,7 @@ const info = [
 ];
 
 const links = [
-  { label: "Contact Us", href: "/contact_us", main: true },
+  { label: "Register", href: "/register", main: true },
   { label: "Products", href: "/products", main: false },
 ];
 
@@ -62,10 +65,14 @@ const line = {
 
 export default function Hero() {
   const [ready, setReady] = useState(false);
-  const imageRef = useRef(null);
+  const mobileRef = useRef(null);
+  const desktopRef = useRef(null);
 
   useEffect(() => {
-    if (imageRef.current?.complete) setReady(true);
+    // Start if the visible image was already cached
+    const visible =
+      window.innerWidth >= 768 ? desktopRef.current : mobileRef.current;
+    if (visible?.complete) setReady(true);
 
     const timer = setTimeout(() => setReady(true), 3000);
     return () => clearTimeout(timer);
@@ -79,32 +86,37 @@ export default function Hero() {
       className="relative flex h-svh w-full flex-col overflow-hidden bg-[#0a0a0a] text-white md:block"
     >
       <div className="relative min-h-0 flex-1 overflow-hidden md:absolute md:inset-0 md:flex-none">
+        {/* Mobile image */}
         <Image
-          src="/Landing_Img/hh.png"
-          alt=""
-          aria-hidden="true"
-          fill
-          sizes="100vw"
-          className="scale-125 object-cover opacity-70 blur-2xl md:hidden"
-        />
-
-        <Image
-          ref={imageRef}
-          src="/Landing_Img/hh.png"
+          ref={mobileRef}
+          src={MOBILE_IMAGE}
           alt="Home gym"
           fill
           priority
           sizes="100vw"
           onLoad={() => setReady(true)}
           onError={() => setReady(true)}
-          className="object-contain object-center md:object-cover"
+          className="object-cover object-center md:hidden"
         />
+
+        {/* Desktop image */}
+        <Image
+          ref={desktopRef}
+          src={DESKTOP_IMAGE}
+          alt="Home gym"
+          fill
+          sizes="100vw"
+          onLoad={() => setReady(true)}
+          onError={() => setReady(true)}
+          className="hidden object-cover object-center md:block"
+        />
+
         <div className="absolute inset-0 hidden bg-gradient-to-t from-black/75 via-black/10 to-black/25 md:block" />
       </div>
 
       <motion.div
         variants={content}
-        className="relative flex flex-col px-6 pb-6 pt-8 md:absolute md:inset-0 md:px-17.5 md:pb-12 md:pt-24 lg:pt-12"
+        className="relative flex flex-col px-6 -mt-15 pb-2 pt-3 md:absolute md:inset-0 md:px-17.5 md:pb-12 md:pt-24 lg:pt-12"
       >
         <motion.h1
           variants={fadeUp}

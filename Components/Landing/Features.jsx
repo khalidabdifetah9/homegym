@@ -1,33 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-
-const features = [
-  {
-    word: "Heavy Duty",
-    title: "high end thick rhs",
-    text: "Built with thick, high quality steel to withstand heavy loads and years of training stable, solid, and made to last",
-    offset: "md:ml-0",
-  },
-  {
-    word: "Versatile",
-    title: "26+ EXERCISES",
-    text: "Incline, decline, flat, pull ups, dips, and more giving you more ways to train",
-    offset: "md:ml-[30%]",
-  },
-  {
-    word: "Space Smart",
-    title: "Fits any room",
-    text: "The bench attachments are Easley assembled and Adjustable. And  the Adjustable dumbbell levels up and down without filling your home with equipment",
-    offset: "md:ml-[10%]",
-  },
-  {
-    word: "Local",
-    title: "Fast delivery & set up",
-    text: "Direct setup help, quick local delivery across Addis Ababa, and gear ready to train on day one.",
-    offset: "md:ml-[40%]",
-  },
-];
+import { features } from "@/lib/Features";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -58,7 +32,7 @@ const line = {
 
 export default function Features() {
   return (
-    <section className="min-h-screen bg-[#0a0a0a] px-6 py-16 text-white md:px-17.5 md:py-25">
+    <section className="min-h-screen bg-[#0a0a0a] -mt-10 px-6 text-white md:px-17.5 md:py-25">
       <p className="mb-16 flex items-center gap-3 text-xl">
         <span className="relative flex h-2 w-2">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75"></span>

@@ -85,7 +85,7 @@ export default function FAQ() {
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.15 }}
-      className="bg-black px-6 py-16 text-white md:max-h-[150vh] md:px-17.5 md:pt-25"
+      className="bg-black px-6 text-white md:max-h-[150vh] md:px-17.5 md:pt-25"
     >
       <motion.p
         variants={fadeUp}
