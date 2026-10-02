@@ -1,4 +1,19 @@
-import { pgTable, text, timestamp, boolean,uuid,index } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  timestamp,
+  boolean,
+  integer,
+  uuid,
+  pgEnum,
+  index,
+} from "drizzle-orm/pg-core";
+
+export const qrStatusEnum = pgEnum("qr_status", [
+  "active",
+  "scanned",
+  "deactivated",
+]);
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -73,7 +88,9 @@ export const verification = pgTable(
 );
 
 export const accessCodes = pgTable("access_codes", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   code: text("code").notNull().unique(),
   isRedeemed: boolean("is_redeemed").default(false).notNull(),
   redeemedByUserId: text("redeemed_by_user_id").references(() => user.id),
@@ -87,6 +104,20 @@ export const products = pgTable("products", {
   description: text("description"),
   imageUrl: text("image_url"),
   sku: text("sku").unique(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const qrCodes = pgTable("qr_codes", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  code: text("code").notNull().unique(),
+  productId: uuid("product_id")
+    .notNull()
+    .references(() => products.id, { onDelete: "cascade" }),
+  status: qrStatusEnum("status").default("active").notNull(),
+  batchNumber: text("batch_number"),
+  scannedAt: timestamp("scanned_at"),
+  scanCount: integer("scan_count").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
