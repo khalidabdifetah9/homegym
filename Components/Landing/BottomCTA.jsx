@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,7 +14,6 @@ const buttons = [
 
 const ease = [0.22, 1, 0.36, 1];
 
-// The section plays its blocks one after another
 const section = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.2 } },
@@ -55,9 +53,6 @@ export default function CTA() {
     e.preventDefault();
     const value = serial.trim();
     if (!value) return;
-
-    // Replace this with your real serial number check.
-    // For now it sends the user to the workout guide with the serial number.
     router.push(`/workout-guide?serial=${encodeURIComponent(value)}`);
   };
 
@@ -69,20 +64,18 @@ export default function CTA() {
       viewport={{ once: true, amount: 0.3 }}
       className="relative h-svh w-full overflow-hidden bg-[#0a0a0a] text-white"
     >
-      {/* Full screen image, no animation */}
       <div className="absolute inset-0 overflow-hidden">
         <Image
           src="/Benches/bench_three.avif"
           alt="Home gym"
           fill
           sizes="100vw"
-          className="object-cover object-center"
+          className="object-contain object-center md:object-cover"
         />
 
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 to-black/60" />
       </div>
 
-      {/* Top left: text */}
       <motion.div
         variants={textBlock}
         className="absolute left-6 top-20 z-10 md:left-17.5 md:top-25"
@@ -114,7 +107,6 @@ export default function CTA() {
         </motion.h2>
       </motion.div>
 
-      {/* Bottom: serial number form on the left, buttons on the right */}
       <div className="absolute inset-x-6 bottom-8 z-10 flex flex-col gap-8 md:inset-x-17.5 md:bottom-10 lg:flex-row lg:items-end lg:justify-between">
         <motion.div variants={textBlock} className="w-full max-w-md">
           <motion.p

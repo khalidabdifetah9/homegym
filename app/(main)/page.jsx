@@ -5,18 +5,16 @@ import WorkoutGuide from "@/Components/Landing/WorkoutGuide";
 import FAQ from "@/Components/Landing/FAQ";
 import CTA from "@/Components/Landing/BottomCTA";
 import Footer from "@/Components/Landing/Footer";
-import Navbar from "@/Components/Landing/Navbar";
 export default function Home() {
   return (
     <>
-      <Navbar />
-      <Hero />
-      <BrandOverview />
-      <Features />
-      <WorkoutGuide />
-      <FAQ />
-      <CTA />
-      <Footer />
+        <Hero/>
+        <BrandOverview/>
+        <Features/>
+        <WorkoutGuide/>
+        <FAQ/>
+        <CTA/>
+        <Footer/>
     </>
   );
 }

@@ -16,11 +16,12 @@ const kronaOne = Krona_One({
 
 export const metadata = {
   title: "ወንዳወንድ Home Gym | Commercial Grade Multi Functional Benches",
-  description: "Skip the crowded gyms. Premium, commercial grade all-in-one workout benches imported in Ethiopia. Built for heavy lifts with zero monthly fees.",
-  icons:{
-    icon:"/logo_black.svg"
+  description:
+    "Skip the crowded gyms. Premium, commercial grade all-in-one workout benches imported in Ethiopia. Built for heavy lifts with zero monthly fees.",
+  icons: {
+    icon: "/logo_black.svg",
   },
-  other: { "color-scheme": "only light" }
+  other: { "color-scheme": "only light" },
 };
 
 export default function RootLayout({ children }) {
@@ -29,10 +30,7 @@ export default function RootLayout({ children }) {
       lang="en"
       className={`${poppins.variable} ${kronaOne.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        <Navbar />
-        {children}
-      </body>
+      <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
 }

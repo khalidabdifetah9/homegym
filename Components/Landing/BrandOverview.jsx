@@ -4,13 +4,6 @@ import { motion } from "framer-motion";
 
 const headline =
   "We design and build heavy duty, multi functional equipments that brings the essentials of a complete training setup into your home giving you the freedom to train on your own time, in your own space.";
-
-const stats = [
-  { number: "780+", label: "Active Customer" },
-  { number: "2+", label: "Years in business" },
-  { number: "26+", label: "Workouts From One Bench" },
-];
-
 const ease = [0.22, 1, 0.36, 1];
 
 const container = {
@@ -18,7 +11,6 @@ const container = {
   visible: { transition: { staggerChildren: 0.1 } },
 };
 
-// Short gap between words, because the headline has many words
 const headlineVariants = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.025 } },
@@ -80,24 +72,6 @@ export default function BrandOverview() {
           </motion.span>
         ))}
       </motion.h2>
-
-      <div className="relative flex flex-wrap gap-10 pt-8 md:gap-20">
-        <motion.div
-          variants={line}
-          className="absolute left-0 top-0 h-px w-full origin-left bg-white/40"
-        />
-
-        {stats.map((item) => (
-          <motion.div key={item.label} variants={fadeUp}>
-            <h3 className="mb-1 font-poppins text-4xl font-semibold">
-              {item.number}
-            </h3>
-            <span className="font-poppins text-sm text-white/60">
-              {item.label}
-            </span>
-          </motion.div>
-        ))}
-      </div>
     </motion.section>
   );
 }

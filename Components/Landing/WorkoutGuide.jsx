@@ -1,30 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-
+import {steps} from "@/lib/ActivationSteps"
 const headline = "Start training in three steps";
 
-// "offset" pushes each step further right, like stairs
-const steps = [
-  {
-    number: "01",
-    title: "Scan your equipment",
-    text: "Scan the QR code on your bench label, or enter the printed serial number on the activation field",
-    offset: "ml-0",
-  },
-  {
-    number: "02",
-    title: "Make it yours",
-    text: "Register with your pre filled serial number and phone number to link your purchase and unlock your account.",
-    offset: "ml-[7.5%] md:ml-[30%]",
-  },
-  {
-    number: "03",
-    title: "Start training",
-    text: "Access your digital workout guide, choose your training program, and track you progress.",
-    offset: "ml-[15%] md:ml-[60%]",
-  },
-];
+
 
 const includes = [
   "Step-by-step exercises",
@@ -34,19 +14,16 @@ const includes = [
 
 const ease = [0.22, 1, 0.36, 1];
 
-// The header and the bottom row play their children one after another
 const container = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.2 } },
 };
 
-// The headline plays its words one after another
 const headlineVariants = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.1 } },
 };
 
-// Each word is revealed from left to right
 const word = {
   hidden: { clipPath: "inset(0 100% 0 0)", x: -24, opacity: 0 },
   visible: {
@@ -57,25 +34,21 @@ const word = {
   },
 };
 
-// Simple fade up for everything else
 const fadeUp = {
   hidden: { y: 30, opacity: 0 },
   visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease } },
 };
 
-// Each step plays its line, dot, number and text one after another
 const step = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.12 } },
 };
 
-// Lines draw themselves from left to right
 const line = {
   hidden: { scaleX: 0 },
   visible: { scaleX: 1, transition: { duration: 1.2, ease } },
 };
 
-// The dot on the line pops in
 const dot = {
   hidden: { scale: 0 },
   visible: { scale: 1, transition: { duration: 0.4, ease } },
@@ -128,7 +101,6 @@ export default function WorkoutGuide() {
         </motion.p>
       </motion.div>
 
-      {/* The staircase of steps, each plays when you scroll to it */}
       <div className="mb-16 flex flex-col gap-12 md:mb-24 md:gap-16">
         {steps.map((item) => (
           <motion.div
@@ -139,12 +111,10 @@ export default function WorkoutGuide() {
             viewport={{ once: true, amount: 0.4 }}
             className={`relative w-[85%] pt-8 md:w-[40%] ${item.offset}`}
           >
-            {/* Line with a dot at the start */}
             <motion.div
               variants={line}
               className="absolute left-0 top-0 h-px w-full origin-left bg-white/40"
             />
-         
 
             <motion.p
               variants={fadeUp}

@@ -20,7 +20,7 @@ const socials = [
 ];
 
 const phoneDisplay = "+251950315508";
-const phoneLink = "tel:+251900000000";
+const phoneLink = "tel:+251950315508";
 
 const addressLines = [
   "Bethel",

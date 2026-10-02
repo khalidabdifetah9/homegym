@@ -56,9 +56,6 @@ const fadeUp = {
   hidden: { y: 30, opacity: 0 },
   visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease } },
 };
-
-// The three states of a stacked image:
-// hidden = closed, previous = open underneath, active = wipes open on top
 const imageStates = {
   hidden: {
     clipPath: "inset(0 100% 0 0)",
@@ -127,12 +124,16 @@ export default function Testimonial() {
         variants={fadeUp}
         className="grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-16"
       >
-        {/* All images are on the page at once, so they are already loaded when you click */}
         <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#1a1a1a]">
           {testimonials.map((item, i) => {
             const status =
-              i === index ? "active" : i === previousIndex ? "previous" : "hidden";
-            const layer = status === "active" ? 2 : status === "previous" ? 1 : 0;
+              i === index
+                ? "active"
+                : i === previousIndex
+                  ? "previous"
+                  : "hidden";
+            const layer =
+              status === "active" ? 2 : status === "previous" ? 1 : 0;
 
             return (
               <motion.div

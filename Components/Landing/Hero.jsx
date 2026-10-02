@@ -8,9 +8,13 @@ import { Noto_Sans_Ethiopic } from "next/font/google";
 
 const ethiopic = Noto_Sans_Ethiopic({ subsets: ["ethiopic"] });
 
-const lines = ["አንድ Bench", "ነፍ Workout"];
+const lines = ["ወንዳወንድ", "Home Gym"];
 
-const info = ["26+ EXERCISES", "Fast delivery & set up", "Dedicated Training Guide"];
+const info = [
+  "26+ EXERCISES",
+  "Fast delivery & set up",
+  "Dedicated Training Guide",
+];
 
 const links = [
   { label: "Contact Us", href: "/contact_us", main: true },
@@ -72,10 +76,18 @@ export default function Hero() {
       variants={section}
       initial="hidden"
       animate={ready ? "visible" : "hidden"}
-      className="relative h-svh w-full overflow-hidden bg-[#0a0a0a] text-white"
+      className="relative flex h-svh w-full flex-col overflow-hidden bg-[#0a0a0a] text-white md:block"
     >
-      {/* Static Background Image Container */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="relative min-h-0 flex-1 overflow-hidden md:absolute md:inset-0 md:flex-none">
+        <Image
+          src="/Landing_Img/hh.png"
+          alt=""
+          aria-hidden="true"
+          fill
+          sizes="100vw"
+          className="scale-125 object-cover opacity-70 blur-2xl md:hidden"
+        />
+
         <Image
           ref={imageRef}
           src="/Landing_Img/hh.png"
@@ -85,19 +97,30 @@ export default function Hero() {
           sizes="100vw"
           onLoad={() => setReady(true)}
           onError={() => setReady(true)}
-          className="object-cover"
+          className="object-contain object-center md:object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/25" />
+        <div className="absolute inset-0 hidden bg-gradient-to-t from-black/75 via-black/10 to-black/25 md:block" />
       </div>
 
       <motion.div
         variants={content}
-        className="absolute inset-0 flex flex-col px-6 pb-8 pt-24 md:px-17.5 md:pb-12 lg:pt-12"
+        className="relative flex flex-col px-6 pb-6 pt-8 md:absolute md:inset-0 md:px-17.5 md:pb-12 md:pt-24 lg:pt-12"
       >
-        <div className="flex flex-1 items-start lg:items-center">
+        <motion.h1
+          variants={fadeUp}
+          className="order-2 mb-6 flex items-baseline justify-center gap-[0.5em] whitespace-nowrap text-[6.2vw] font-black uppercase leading-none md:order-none md:hidden"
+        >
+          <span className={`${ethiopic.className} text-[1.15em] font-black`}>
+            {lines[0]}
+          </span>
+          <span className="font-light text-white/40">|</span>
+          <span>{lines[1]}</span>
+        </motion.h1>
+
+        <div className="hidden flex-1 items-start md:flex lg:items-center">
           <motion.h1
             variants={headlineVariants}
-            className="text-[11vw] font-extrabold uppercase leading-[0.95] sm:text-[10vw] lg:text-[4.8vw]"
+            className="text-[10vw] font-extrabold uppercase leading-[0.95] lg:text-[4.8vw]"
           >
             {lines.map((text) => (
               <span key={text} className="block">
@@ -105,9 +128,9 @@ export default function Hero() {
                   <motion.span
                     key={i}
                     variants={word}
-                    className={`mr-[0.25em] inline-block align-top lg:mr-0 lg:block ${
+                    className={`mr-[0.25em] inline-block align-top text-[1.19em] lg:mr-0 lg:block ${
                       isAmharic(w)
-                        ? `${ethiopic.className} text-[1.15em] font-black leading-[0.9]`
+                        ? `${ethiopic.className} font-black leading-[0.9]`
                         : ""
                     }`}
                   >
@@ -121,19 +144,19 @@ export default function Hero() {
 
         <motion.div
           variants={fadeUp}
-          className="mb-4 flex items-center justify-between font-poppins text-[10px] font-light uppercase tracking-[0.15em] text-white/70 sm:text-[11px] md:mb-6"
+          className="order-1 mb-8 flex items-center justify-between gap-6 font-poppins text-[10px] font-light uppercase tracking-[0.15em] text-white/70 md:order-none md:mb-6 md:text-[11px]"
         >
           <span className="flex items-center gap-3">{info[0]}</span>
           <span>{info[1]}</span>
-          <span className="hidden sm:block">{info[2]}</span>
+          <span className="hidden md:block">{info[2]}</span>
         </motion.div>
 
         <motion.div
           variants={line}
-          className="mb-6 h-px origin-left bg-[#d4d4d4]/60 md:mb-8"
+          className="mb-8 hidden h-px origin-left bg-[#d4d4d4]/60 md:block"
         />
 
-        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+        <div className="order-3 flex flex-col justify-between gap-6 md:order-none md:flex-row md:items-end">
           <motion.p
             variants={fadeUp}
             className="max-w-sm font-poppins text-sm leading-snug text-white/80 md:text-lg"
@@ -142,7 +165,7 @@ export default function Hero() {
             complete home workout, in one place.
           </motion.p>
 
-          <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="flex flex-col gap-3 md:flex-row">
             {links.map((item) => (
               <motion.div key={item.label} variants={fadeUp}>
                 <Link
