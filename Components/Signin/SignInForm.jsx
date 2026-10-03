@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const initialForm = {
   email: "",
@@ -17,7 +18,7 @@ export default function SignIn() {
   const [form, setForm] = useState(initialForm);
   const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState({ type: "idle", message: "" });
-
+  const router = useRouter()
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -29,7 +30,7 @@ export default function SignIn() {
 
     try {
       // TODO: point this at your own endpoint
-      const res = await fetch("/api/login", {
+      const res = await fetch("/api/auth/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -38,12 +39,13 @@ export default function SignIn() {
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(
-          data.message || "Sign in failed. Check your email and password."
+          data.message || "Sign in failed. Check your email and password.",
         );
       }
 
       setStatus({ type: "success", message: "Signed in. Redirecting..." });
-      // TODO: redirect, e.g. router.push("/dashboard")
+      router.push("/workout_guide");
+      router.refresh();
     } catch (err) {
       setStatus({ type: "error", message: err.message });
     }

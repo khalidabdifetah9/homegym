@@ -1,10 +1,9 @@
-
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { products } from "@/db/schema";
+import { products, productCategories } from "@/db/schema";
 
 export const dynamic = "force-dynamic";
 
@@ -26,11 +25,12 @@ export default async function SingleProduct({ params }) {
   const [product] = await db
     .select({
       id: products.id,
-      name: products.name,
-      description: products.description,
+      name: productCategories.name,
+      description: productCategories.description,
       imageUrl: products.imageUrl,
     })
     .from(products)
+    .innerJoin(productCategories, eq(products.categoryId, productCategories.id))
     .where(eq(products.id, id))
     .limit(1);
 

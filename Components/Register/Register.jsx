@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-
+import Field, { inputClass } from "./Field";
+import PasswordField from "./PasswordField";
+import { useRouter } from "next/navigation";
 const initialForm = {
   fullName: "",
   phone: "",
@@ -11,15 +13,36 @@ const initialForm = {
   password: "",
 };
 
-const inputClass =
-  "w-full border-0 border-b border-white/20 bg-transparent pb-3 pt-2.5 text-[0.98rem] font-light text-white outline-none transition-colors " +
-  "placeholder:text-white/30 focus:border-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white " +
-  "[&:-webkit-autofill]:[-webkit-text-fill-color:#fff] [&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_#050505]";
+function normalizeEthiopianPhone(input) {
+  const cleaned = String(input).replace(/[\s\-()]/g, "");
+  const match = cleaned.match(/^(?:\+251|251|0)?([79]\d{8})$/);
+  return match ? `+251${match[1]}` : null;
+}
 
-export default function Register({ initialSerial = "" }) { // CHANGED: accepts the prop
-  const [form, setForm] = useState({ ...initialForm, serialNumber: initialSerial }); // CHANGED: pre-filled
-  const [showPassword, setShowPassword] = useState(false);
+function getPasswordError(password) {
+  if (password.length < 8) return "Password must be at least 8 characters.";
+  if (!/[A-Za-z]/.test(password))
+    return "Password must include at least one letter.";
+  if (!/[^A-Za-z]/.test(password))
+    return "Password must include at least one number or symbol.";
+  return "";
+}
+
+export default function Register({ initialSerial = "" }) {
+  const [form, setForm] = useState({
+    ...initialForm,
+    serialNumber: initialSerial,
+  });
   const [status, setStatus] = useState({ type: "idle", message: "" });
+  useEffect(() => {
+    if (!status.message) return;
+
+    const timer = setTimeout(() => {
+      setStatus({ type: "idle", message: "" });
+    }, 8000);
+
+    return () => clearTimeout(timer);
+  }, [status]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,23 +51,40 @@ export default function Register({ initialSerial = "" }) { // CHANGED: accepts t
       [name]: name === "serialNumber" ? value.toUpperCase() : value,
     }));
   };
+  const route = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const phone = normalizeEthiopianPhone(form.phone);
+    if (!phone) {
+      setStatus({
+        type: "error",
+        message: "Enter a valid Ethiopian phone number, like 0912 345 678.",
+      });
+      return;
+    }
+
+    const passwordError = getPasswordError(form.password);
+    if (passwordError) {
+      setStatus({ type: "error", message: passwordError });
+      return;
+    }
+
     setStatus({ type: "loading", message: "" });
 
     try {
-      // TODO: point this at your own endpoint
-      const res = await fetch("/api/register", {
+      const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, phone }),
       });
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(
-          data.message || "Registration failed. Check your details and try again."
+          data.message ||
+            "Registration failed. Check your details and try again.",
         );
       }
 
@@ -52,6 +92,8 @@ export default function Register({ initialSerial = "" }) { // CHANGED: accepts t
         type: "success",
         message: "Account created. Your bench is registered.",
       });
+      route.push("/workout_guide");
+      route.refresh();
       setForm(initialForm);
     } catch (err) {
       setStatus({ type: "error", message: err.message });
@@ -90,8 +132,8 @@ export default function Register({ initialSerial = "" }) { // CHANGED: accepts t
               type="tel"
               inputMode="tel"
               autoComplete="tel"
-              placeholder="+251 9XX XXX XXX"
-              pattern="[+0-9\s\-]{9,16}"
+              placeholder="09XX XXX XXX"
+              maxLength={17}
               value={form.phone}
               onChange={handleChange}
               required
@@ -126,29 +168,7 @@ export default function Register({ initialSerial = "" }) { // CHANGED: accepts t
             />
           </Field>
 
-          <Field label="Password">
-            <div className="relative">
-              <input
-                name="password"
-                type={showPassword ? "text" : "password"}
-                autoComplete="new-password"
-                placeholder="At least 8 characters"
-                minLength={8}
-                value={form.password}
-                onChange={handleChange}
-                required
-                className={`${inputClass} pr-14`}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((s) => !s)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
-                className="absolute bottom-3 right-0 text-[0.78rem] text-white/60 hover:text-white focus-visible:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
-            </div>
-          </Field>
+          <PasswordField value={form.password} onChange={handleChange} />
 
           {status.message && (
             <p
@@ -168,7 +188,9 @@ export default function Register({ initialSerial = "" }) { // CHANGED: accepts t
             disabled={status.type === "loading"}
             className="mt-1.5 border border-[#d9d9d9] bg-[#d9d9d9] px-6 py-4 text-[0.78rem] font-medium uppercase tracking-[0.16em] text-[#111] transition-colors hover:bg-transparent hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white disabled:cursor-wait disabled:opacity-60 disabled:hover:bg-[#d9d9d9] disabled:hover:text-[#111]"
           >
-            {status.type === "loading" ? "Creating account..." : "Create account"}
+            {status.type === "loading"
+              ? "Creating account..."
+              : "Create account"}
           </button>
 
           <p className="text-sm font-light text-white/60">
@@ -183,16 +205,5 @@ export default function Register({ initialSerial = "" }) { // CHANGED: accepts t
         </form>
       </section>
     </main>
-  );
-}
-
-function Field({ label, children }) {
-  return (
-    <label className="flex flex-col gap-2">
-      <span className="text-[0.68rem] uppercase tracking-[0.16em] text-white/60">
-        {label}
-      </span>
-      {children}
-    </label>
   );
 }

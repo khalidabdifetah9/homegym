@@ -7,8 +7,9 @@ import { motion } from "framer-motion";
 
 const links = [
   { label: "Post Product", href: "/admin", isDefault: true },
+  { label: "Add Product Type", href: "/admin/add-product-type" },
   { label: "Products", href: "/admin/products" },
-  { label: "Generate QR Code", href: "/admin/generate_qr" },
+  { label: "Generate QR Code", href: "/admin/generate-qr" },
 ];
 
 const ease = [0.22, 1, 0.36, 1];

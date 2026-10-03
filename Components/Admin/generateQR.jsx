@@ -7,7 +7,7 @@ import { saveAs } from "file-saver";
 
 const MAX_PER_BATCH = 500;
 
-// The link each QR code opens when scanned. Change "/verify" to your scan page.
+// The link each QR code opens when scanned
 const getScanUrl = (code) => {
   const base = (
     process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
@@ -65,10 +65,10 @@ function formatSize(bytes) {
 
 export default function GenerateQR() {
   const [count, setCount] = useState("");
-  const [productId, setProductId] = useState("");
-  const [products, setProducts] = useState([]);
-  const [productsLoading, setProductsLoading] = useState(true);
-  const [productsError, setProductsError] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [categoriesError, setCategoriesError] = useState("");
 
   const [status, setStatus] = useState("idle"); // idle | saving | building
   const [progress, setProgress] = useState({ done: 0, total: 0 });
@@ -80,7 +80,7 @@ export default function GenerateQR() {
 
   const busy = status !== "idle";
 
-  // Load products for the dropdown
+  // Load product types for the dropdown
   useEffect(() => {
     let cancelled = false;
 
@@ -88,18 +88,20 @@ export default function GenerateQR() {
       try {
         const res = await fetch("/api/admin/generate_qr");
         const data = await res.json();
-        if (!res.ok) throw new Error(data?.message || "Could not load products.");
-        if (!cancelled) setProducts(data.products || []);
+        if (!res.ok) {
+          throw new Error(data?.message || "Could not load product types.");
+        }
+        if (!cancelled) setCategories(data.categories || []);
       } catch (err) {
         if (!cancelled) {
-          setProductsError(
+          setCategoriesError(
             err instanceof TypeError
-              ? "Network error. Could not load products."
-              : err.message || "Could not load products."
+              ? "Network error. Could not load product types."
+              : err.message || "Could not load product types."
           );
         }
       } finally {
-        if (!cancelled) setProductsLoading(false);
+        if (!cancelled) setCategoriesLoading(false);
       }
     })();
 
@@ -146,11 +148,11 @@ export default function GenerateQR() {
     } else if (number > MAX_PER_BATCH) {
       localErrors.count = `You can generate at most ${MAX_PER_BATCH} codes at a time.`;
     }
-    if (!productId) localErrors.productId = "Please select a product.";
+    if (!categoryId) localErrors.categoryId = "Please select a product type.";
 
     if (Object.keys(localErrors).length > 0) {
       setFieldErrors(localErrors);
-      setToast({ type: "error", text: "Please fix the highlighted fields." });
+      setToast({ type: "error", text: Object.values(localErrors).join(" ") });
       return;
     }
 
@@ -162,7 +164,7 @@ export default function GenerateQR() {
       const res = await fetch("/api/admin/generate_qr", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ count: number, productId }),
+        body: JSON.stringify({ count: number, categoryId }),
       });
 
       try {
@@ -206,8 +208,7 @@ export default function GenerateQR() {
         fileName: `qr-codes-${data.batchNumber}.zip`,
         size: blob.size,
         count: data.codes.length,
-        batchNumber: data.batchNumber,
-        productName: data.productName,
+        categoryName: data.categoryName,
       });
       setToast({ type: "success", text: data.message });
       setCount("");
@@ -249,51 +250,53 @@ export default function GenerateQR() {
           noValidate
           className="flex flex-col gap-7 md:gap-8"
         >
-          {/* Product */}
+          {/* Product type */}
           <div>
-            <label htmlFor="product" className={labelClass}>
-              Product
+            <label htmlFor="category" className={labelClass}>
+              Product Type
             </label>
             <select
-              id="product"
-              value={productId}
+              id="category"
+              value={categoryId}
               onChange={(e) => {
-                setProductId(e.target.value);
-                clearFieldError("productId");
+                setCategoryId(e.target.value);
+                clearFieldError("categoryId");
               }}
               disabled={
                 busy ||
-                productsLoading ||
-                (!!productsError) ||
-                products.length === 0
+                categoriesLoading ||
+                !!categoriesError ||
+                categories.length === 0
               }
               className={`${fieldClass} [color-scheme:dark] ${
-                productId ? "" : "text-white/30"
+                categoryId ? "" : "text-white/30"
               }`}
             >
               <option value="" disabled className="bg-black text-white/50">
-                {productsLoading
-                  ? "Loading products..."
-                  : productsError
-                  ? "Could not load products"
-                  : products.length === 0
-                  ? "No products yet"
-                  : "Select a product"}
+                {categoriesLoading
+                  ? "Loading product types..."
+                  : categoriesError
+                  ? "Could not load product types"
+                  : categories.length === 0
+                  ? "No product types yet"
+                  : "Select a product type"}
               </option>
-              {products.map((p) => (
-                <option key={p.id} value={p.id} className="bg-black text-white">
-                  {p.name}
+              {categories.map((c) => (
+                <option key={c.id} value={c.id} className="bg-black text-white">
+                  {c.name}
                 </option>
               ))}
             </select>
-            {productsError && <p className={errorClass}>{productsError}</p>}
-            {!productsError && !productsLoading && products.length === 0 && (
-              <p className={errorClass}>
-                Post a product first, then come back to generate its QR codes.
-              </p>
-            )}
-            {fieldErrors.productId && (
-              <p className={errorClass}>{fieldErrors.productId}</p>
+            {categoriesError && <p className={errorClass}>{categoriesError}</p>}
+            {!categoriesError &&
+              !categoriesLoading &&
+              categories.length === 0 && (
+                <p className={errorClass}>
+                  Add a product type first, then come back to generate QR codes.
+                </p>
+              )}
+            {fieldErrors.categoryId && (
+              <p className={errorClass}>{fieldErrors.categoryId}</p>
             )}
           </div>
 
@@ -373,12 +376,15 @@ export default function GenerateQR() {
                 <p className="mb-1 text-[10px] uppercase tracking-[0.2em] text-white/50 sm:text-[11px]">
                   Ready to download
                 </p>
-                <p className="mb-1 truncate text-sm text-white" title={result.fileName}>
+                <p
+                  className="mb-1 truncate text-sm text-white"
+                  title={result.fileName}
+                >
                   {result.fileName}
                 </p>
                 <p className="mb-4 text-xs text-white/50">
                   {result.count} {result.count === 1 ? "code" : "codes"} ·{" "}
-                  {result.productName} · {formatSize(result.size)}
+                  {result.categoryName} · {formatSize(result.size)}
                 </p>
                 <button
                   type="button"

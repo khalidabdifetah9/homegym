@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
-import { db } from "@/db"; // adjust to where your drizzle instance lives
-import { products } from "@/db/schema"; // adjust to where your schema lives
 import { revalidatePath } from "next/cache";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { products, productCategories } from "@/db/schema";
+
+export const dynamic = "force-dynamic";
+
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 function errorResponse(message, status, errors = null) {
   return NextResponse.json(
     { success: false, message, ...(errors && { errors }) },
@@ -9,19 +16,11 @@ function errorResponse(message, status, errors = null) {
   );
 }
 
-function validate({ title, description, imageUrl }) {
+function validate({ categoryId, imageUrl }) {
   const errors = {};
 
-  if (typeof title !== "string" || !title.trim()) {
-    errors.title = "Product name is required.";
-  } else if (title.trim().length > 200) {
-    errors.title = "Product name must be 200 characters or less.";
-  }
-
-  if (typeof description !== "string" || !description.trim()) {
-    errors.description = "Description is required.";
-  } else if (description.trim().length > 5000) {
-    errors.description = "Description must be 5000 characters or less.";
+  if (typeof categoryId !== "string" || !UUID_REGEX.test(categoryId)) {
+    errors.categoryId = "Please select a product type.";
   }
 
   if (typeof imageUrl !== "string" || !imageUrl.trim()) {
@@ -41,10 +40,7 @@ function validate({ title, description, imageUrl }) {
 }
 
 export async function POST(request) {
-  // TODO: protect this route (check admin session/token here)
-  // if (!isAdmin) return errorResponse("Unauthorized.", 401);
 
-  // 1. Parse body
   let body;
   try {
     body = await request.json();
@@ -52,28 +48,38 @@ export async function POST(request) {
     return errorResponse("Request body must be valid JSON.", 400);
   }
 
-  // 2. Validate
   const errors = validate(body ?? {});
   if (Object.keys(errors).length > 0) {
     return errorResponse("Please fix the highlighted fields.", 422, errors);
   }
 
-  // 3. Save to database
+  const categoryId = body.categoryId;
+  const imageUrl = body.imageUrl.trim();
+
   try {
+    const [category] = await db
+      .select({ id: productCategories.id, name: productCategories.name })
+      .from(productCategories)
+      .where(eq(productCategories.id, categoryId))
+      .limit(1);
+
+    if (!category) {
+      return errorResponse("The selected product type does not exist.", 404, {
+        categoryId: "The selected product type does not exist.",
+      });
+    }
+
     const [product] = await db
       .insert(products)
-      .values({
-        name: body.title.trim(),
-        description: body.description.trim(),
-        imageUrl: body.imageUrl.trim(),
-      })
+      .values({ categoryId, imageUrl })
       .returning();
+
     revalidatePath("/products");
 
     return NextResponse.json(
       {
         success: true,
-        message: "Product posted successfully!",
+        message: `Product added to ${category.name}.`,
         product,
       },
       { status: 201 },
@@ -81,17 +87,15 @@ export async function POST(request) {
   } catch (err) {
     console.error("post_product error:", err);
 
-    // Postgres error code may be on err or err.cause (newer drizzle wraps it)
     const code = err?.code ?? err?.cause?.code;
 
-    if (code === "23505") {
-      return errorResponse("A product with this SKU already exists.", 409);
+    if (code === "23503") {
+      return errorResponse("The selected product type no longer exists.", 404, {
+        categoryId: "The selected product type no longer exists.",
+      });
     }
     if (code === "23502") {
       return errorResponse("A required field is missing.", 400);
-    }
-    if (code === "22001") {
-      return errorResponse("One of the values is too long.", 400);
     }
     if (code === "ECONNREFUSED" || code === "ENOTFOUND") {
       return errorResponse("Cannot reach the database. Try again later.", 503);

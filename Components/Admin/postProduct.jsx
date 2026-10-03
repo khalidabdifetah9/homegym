@@ -3,14 +3,46 @@ import { useState, useEffect } from "react";
 import CldUpload from "./CldUpload";
 
 export default function PostProduct() {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [categoriesError, setCategoriesError] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [imageName, setImageName] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
   const [visible, setVisible] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
+
+  // Load product types for the dropdown
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await fetch("/api/admin/add_product_type");
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data?.message || "Could not load product types.");
+        }
+        if (!cancelled) setCategories(data.categories || []);
+      } catch (err) {
+        if (!cancelled) {
+          setCategoriesError(
+            err instanceof TypeError
+              ? "Network error. Could not load product types."
+              : err.message || "Could not load product types.",
+          );
+        }
+      } finally {
+        if (!cancelled) setCategoriesLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Show the message with a fade in, fade it out at 2.7s, remove it at 3s
   useEffect(() => {
@@ -20,7 +52,7 @@ export default function PostProduct() {
     const fadeTimer = setTimeout(() => setVisible(false), 2700);
     const clearTimer = setTimeout(
       () => setMessage({ type: "", text: "" }),
-      3000
+      3000,
     );
 
     return () => {
@@ -55,8 +87,7 @@ export default function PostProduct() {
     setFieldErrors({});
 
     const localErrors = {};
-    if (!title.trim()) localErrors.title = "Product name is required.";
-    if (!description.trim()) localErrors.description = "Description is required.";
+    if (!categoryId) localErrors.categoryId = "Please select a product type.";
     if (!imageUrl) localErrors.imageUrl = "Product image is required.";
 
     if (Object.keys(localErrors).length > 0) {
@@ -74,7 +105,7 @@ export default function PostProduct() {
       const res = await fetch("/api/admin/post_product", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, description, imageUrl }),
+        body: JSON.stringify({ categoryId, imageUrl }),
       });
 
       let data = null;
@@ -98,8 +129,7 @@ export default function PostProduct() {
         type: "success",
         text: data?.message || "Product posted successfully!",
       });
-      setTitle("");
-      setDescription("");
+      setCategoryId("");
       setImageUrl("");
       setImageName("");
     } catch (err) {
@@ -134,34 +164,48 @@ export default function PostProduct() {
         </h1>
 
         <div className="mb-6 sm:mb-8">
-          <label className={labelClass}>Product Name</label>
-          <input
-            type="text"
-            placeholder="Adjustable Bench"
-            value={title}
+          <label className={labelClass}>Product Type</label>
+          <select
+            value={categoryId}
             onChange={(e) => {
-              setTitle(e.target.value);
-              clearFieldError("title");
+              setCategoryId(e.target.value);
+              clearFieldError("categoryId");
             }}
-            className={fieldClass}
-          />
-          {fieldErrors.title && <p className={errorClass}>{fieldErrors.title}</p>}
-        </div>
-
-        <div className="mb-6 sm:mb-8">
-          <label className={labelClass}>Description</label>
-          <textarea
-            placeholder="Write a short description of the product"
-            value={description}
-            onChange={(e) => {
-              setDescription(e.target.value);
-              clearFieldError("description");
-            }}
-            rows={4}
-            className={`${fieldClass} resize-none`}
-          />
-          {fieldErrors.description && (
-            <p className={errorClass}>{fieldErrors.description}</p>
+            disabled={
+              loading ||
+              categoriesLoading ||
+              !!categoriesError ||
+              categories.length === 0
+            }
+            className={`${fieldClass} [color-scheme:dark] disabled:opacity-50 ${
+              categoryId ? "" : "text-zinc-600"
+            }`}
+          >
+            <option value="" disabled className="bg-black text-zinc-500">
+              {categoriesLoading
+                ? "Loading product types..."
+                : categoriesError
+                  ? "Could not load product types"
+                  : categories.length === 0
+                    ? "No product types yet"
+                    : "Select a product type"}
+            </option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id} className="bg-black text-white">
+                {c.name}
+              </option>
+            ))}
+          </select>
+          {categoriesError && <p className={errorClass}>{categoriesError}</p>}
+          {!categoriesError &&
+            !categoriesLoading &&
+            categories.length === 0 && (
+              <p className={errorClass}>
+                Add a product type first, then come back to post a product.
+              </p>
+            )}
+          {fieldErrors.categoryId && (
+            <p className={errorClass}>{fieldErrors.categoryId}</p>
           )}
         </div>
 

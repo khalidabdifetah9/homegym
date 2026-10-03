@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { asc, eq } from "drizzle-orm";
-import { db } from "@/db"; // same db import as your other routes
-import { products, qrCodes } from "@/db/schema"; // same schema import
+import { db } from "@/db";
+import { productCategories, qrCodes } from "@/db/schema";
 
 export const dynamic = "force-dynamic";
 
@@ -20,45 +20,46 @@ function errorResponse(message, status, errors = null) {
   );
 }
 
+function randomChars(length) {
+  const bytes = crypto.randomBytes(length);
+  let s = "";
+  for (let i = 0; i < length; i++) s += ALPHABET[bytes[i] % ALPHABET.length];
+  return s;
+}
+
 // Example: WNDA-K7M2P-9XQ4T
 function randomCode() {
-  const bytes = crypto.randomBytes(10);
-  let s = "";
-  for (let i = 0; i < 10; i++) s += ALPHABET[bytes[i] % ALPHABET.length];
+  const s = randomChars(10);
   return `WNDA-${s.slice(0, 5)}-${s.slice(5)}`;
 }
 
-// Example: B20261002-A7K3
+// Example: B20261003-A7K3
 function makeBatchNumber() {
   const d = new Date();
   const date = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(
     d.getDate()
   ).padStart(2, "0")}`;
-  const bytes = crypto.randomBytes(4);
-  let s = "";
-  for (let i = 0; i < 4; i++) s += ALPHABET[bytes[i] % ALPHABET.length];
-  return `B${date}-${s}`;
+  return `B${date}-${randomChars(4)}`;
 }
 
-// Products for the dropdown
+// Product types for the dropdown
 export async function GET() {
-  // TODO: protect this route (check admin session/token here)
+  // TODO: protect this route (check admin session here)
   try {
-    const rows = await db
-      .select({ id: products.id, name: products.name })
-      .from(products)
-      .orderBy(asc(products.name));
+    const categories = await db
+      .select({ id: productCategories.id, name: productCategories.name })
+      .from(productCategories)
+      .orderBy(asc(productCategories.name));
 
-    return NextResponse.json({ success: true, products: rows });
+    return NextResponse.json({ success: true, categories });
   } catch (err) {
     console.error("generate_qr GET error:", err);
-    return errorResponse("Could not load products.", 500);
+    return errorResponse("Could not load product types.", 500);
   }
 }
 
 export async function POST(request) {
-  // TODO: protect this route (check admin session/token here)
-  // if (!isAdmin) return errorResponse("Unauthorized.", 401);
+  // TODO: protect this route (check admin session here)
 
   let body;
   try {
@@ -67,7 +68,7 @@ export async function POST(request) {
     return errorResponse("Request body must be valid JSON.", 400);
   }
 
-  const { count, productId } = body ?? {};
+  const { count, categoryId } = body ?? {};
   const errors = {};
 
   if (!Number.isInteger(count) || count < 1) {
@@ -76,8 +77,8 @@ export async function POST(request) {
     errors.count = `You can generate at most ${MAX_PER_BATCH} codes at a time.`;
   }
 
-  if (typeof productId !== "string" || !UUID_REGEX.test(productId)) {
-    errors.productId = "Please select a product.";
+  if (typeof categoryId !== "string" || !UUID_REGEX.test(categoryId)) {
+    errors.categoryId = "Please select a product type.";
   }
 
   if (Object.keys(errors).length > 0) {
@@ -85,16 +86,15 @@ export async function POST(request) {
   }
 
   try {
-    // Make sure the product exists
-    const [product] = await db
-      .select({ id: products.id, name: products.name })
-      .from(products)
-      .where(eq(products.id, productId))
+    const [category] = await db
+      .select({ id: productCategories.id, name: productCategories.name })
+      .from(productCategories)
+      .where(eq(productCategories.id, categoryId))
       .limit(1);
 
-    if (!product) {
-      return errorResponse("The selected product does not exist.", 404, {
-        productId: "The selected product does not exist.",
+    if (!category) {
+      return errorResponse("The selected product type does not exist.", 404, {
+        categoryId: "The selected product type does not exist.",
       });
     }
 
@@ -113,7 +113,7 @@ export async function POST(request) {
 
       const rows = await db
         .insert(qrCodes)
-        .values([...batch].map((code) => ({ code, productId, batchNumber })))
+        .values([...batch].map((code) => ({ code, categoryId, batchNumber })))
         .onConflictDoNothing()
         .returning({ code: qrCodes.code });
 
@@ -132,7 +132,7 @@ export async function POST(request) {
         success: true,
         message: `${count} QR ${count === 1 ? "code" : "codes"} generated.`,
         batchNumber,
-        productName: product.name,
+        categoryName: category.name,
         codes: saved,
       },
       { status: 201 }
@@ -143,7 +143,13 @@ export async function POST(request) {
     const code = err?.code ?? err?.cause?.code;
 
     if (code === "23503") {
-      return errorResponse("The selected product no longer exists.", 404);
+      return errorResponse("The selected product type no longer exists.", 404);
+    }
+    if (code === "42703" || code === "42P01") {
+      return errorResponse(
+        "Database tables are out of date. Run your migration (drizzle-kit push).",
+        500
+      );
     }
     if (code === "ECONNREFUSED" || code === "ENOTFOUND") {
       return errorResponse("Cannot reach the database. Try again later.", 503);

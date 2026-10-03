@@ -20,7 +20,7 @@ export const user = pgTable("user", {
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").default(false).notNull(),
-  phoneNumber: text("phone_number"), // Added for customer registration
+  phoneNumber: text("phone_number"),
   role: text("role").default("user").notNull(),
   image: text("image"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -100,12 +100,20 @@ export const accessCodes = pgTable("access_codes", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const productCategories = pgTable("product_categories", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull().unique(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const products = pgTable("products", {
   id: uuid("id").defaultRandom().primaryKey(),
-  name: text("name").notNull(),
-  description: text("description"),
-  imageUrl: text("image_url"),
-  sku: text("sku").unique(),
+  categoryId: uuid("category_id")
+    .notNull()
+    .references(() => productCategories.id, { onDelete: "cascade" }),
+  imageUrl: text("image_url").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -113,9 +121,9 @@ export const products = pgTable("products", {
 export const qrCodes = pgTable("qr_codes", {
   id: uuid("id").defaultRandom().primaryKey(),
   code: text("code").notNull().unique(),
-  productId: uuid("product_id")
+  categoryId: uuid("category_id")
     .notNull()
-    .references(() => products.id, { onDelete: "cascade" }),
+    .references(() => productCategories.id, { onDelete: "cascade" }),
   status: qrStatusEnum("status").default("active").notNull(),
   batchNumber: text("batch_number"),
   scannedAt: timestamp("scanned_at"),
@@ -129,9 +137,6 @@ export const userProducts = pgTable("user_products", {
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  productId: uuid("product_id")
-    .notNull()
-    .references(() => products.id, { onDelete: "cascade" }),
   serialCode: text("serial_code")
     .notNull()
     .unique()

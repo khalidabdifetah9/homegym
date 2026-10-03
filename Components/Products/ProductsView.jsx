@@ -33,7 +33,7 @@ const fadeUp = {
   visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease } },
 };
 
-export default function ProductsView({ products }) {
+export default function ProductsView({ categories }) {
   const words = headline.split(" ");
 
   return (
@@ -74,34 +74,44 @@ export default function ProductsView({ products }) {
         </motion.p>
       </motion.div>
 
-      {products.length === 0 ? (
+      {categories.length === 0 ? (
         <p className="font-poppins text-sm uppercase tracking-[0.1em] text-white/60">
           No products yet.
         </p>
       ) : (
-        <div className="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 lg:grid-cols-4">
-          {products.map((item) => (
-            <Link
-              key={item.id}
-              href={`/products/${item.id}`}
-              className="group block bg-[#141414] transition-colors duration-300 hover:bg-[#1c1c1c]"
-            >
-              <div className="relative aspect-square w-full bg-[#d4d4d4]">
-                <Image
-                  src={item.imageUrl}
-                  alt={item.name}
-                  fill
-                  sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
-                  className="object-contain"
-                />
+        <div className="flex flex-col gap-14 md:gap-20">
+          {categories.map((category, index) => (
+            <section key={category.id}>
+              <div className="mb-5 border-b border-white/20 pb-4 md:mb-6">
+                <h2 className="flex items-baseline gap-3 text-2xl font-semibold uppercase leading-tight md:text-4xl">
+                  <span className="font-poppins text-sm font-light text-white/40 md:text-base">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  {category.name}
+                </h2>
+             
               </div>
 
-              <div className="px-4 py-4 font-poppins text-[10px] uppercase tracking-[0.1em] sm:text-xs">
-                <span className="text-white/60 transition-colors duration-300 group-hover:text-[#d4d4d4]">
-                  {item.name}
-                </span>
+              <div className="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 lg:grid-cols-4">
+                {category.products.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={`/products/${item.id}`}
+                    className="group block bg-[#141414] transition-colors duration-300 hover:bg-[#1c1c1c]"
+                  >
+                    <div className="relative aspect-square w-full bg-[#d4d4d4]">
+                      <Image
+                        src={item.imageUrl}
+                        alt={category.name}
+                        fill
+                        sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+                        className="object-contain"
+                      />
+                    </div>
+                  </Link>
+                ))}
               </div>
-            </Link>
+            </section>
           ))}
         </div>
       )}
