@@ -12,7 +12,7 @@ const getScanUrl = (code) => {
   const base = (
     process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
   ).replace(/\/$/, "");
-  return `${base}/verify/${code}`;
+  return `${base}/register/${code}`;
 };
 
 // Printable label: QR code with the serial number under it

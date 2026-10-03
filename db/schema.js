@@ -20,6 +20,8 @@ export const user = pgTable("user", {
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").default(false).notNull(),
+  phoneNumber: text("phone_number"), // Added for customer registration
+  role: text("role").default("user").notNull(),
   image: text("image"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
@@ -120,4 +122,19 @@ export const qrCodes = pgTable("qr_codes", {
   scanCount: integer("scan_count").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const userProducts = pgTable("user_products", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  productId: uuid("product_id")
+    .notNull()
+    .references(() => products.id, { onDelete: "cascade" }),
+  serialCode: text("serial_code")
+    .notNull()
+    .unique()
+    .references(() => qrCodes.code, { onDelete: "cascade" }),
+  registeredAt: timestamp("registered_at").defaultNow().notNull(),
 });

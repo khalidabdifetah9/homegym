@@ -16,8 +16,8 @@ const inputClass =
   "placeholder:text-white/30 focus:border-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white " +
   "[&:-webkit-autofill]:[-webkit-text-fill-color:#fff] [&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_#050505]";
 
-export default function Register() {
-  const [form, setForm] = useState(initialForm);
+export default function Register({ initialSerial = "" }) { // CHANGED: accepts the prop
+  const [form, setForm] = useState({ ...initialForm, serialNumber: initialSerial }); // CHANGED: pre-filled
   const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState({ type: "idle", message: "" });
 
