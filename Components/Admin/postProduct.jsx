@@ -166,6 +166,7 @@ export default function PostProduct() {
         <div className="mb-6 sm:mb-8">
           <label className={labelClass}>Product Type</label>
           <select
+            suppressHydrationWarning
             value={categoryId}
             onChange={(e) => {
               setCategoryId(e.target.value);

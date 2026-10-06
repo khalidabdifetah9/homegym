@@ -94,7 +94,7 @@ export default function Hero() {
           alt="Home gym"
           fill
           priority
-          sizes="100vw"
+          sizes="80vw"
           onLoad={() => setReady(true)}
           onError={() => setReady(true)}
           className="object-cover object-center md:hidden"

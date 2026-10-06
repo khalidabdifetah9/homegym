@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 function errorResponse(message, status, errors = null) {
   return NextResponse.json(
     { success: false, message, ...(errors && { errors }) },
-    { status }
+    { status },
   );
 }
 
@@ -117,7 +117,7 @@ export async function POST(request) {
       return errorResponse(
         "This serial number has already been registered.",
         409,
-        { serialNumber: "This serial number has already been registered." }
+        { serialNumber: "This serial number has already been registered." },
       );
     }
 
@@ -134,9 +134,13 @@ export async function POST(request) {
         const code = err.body?.code;
 
         if (code === "USER_ALREADY_EXISTS" || /already exists/i.test(msg)) {
-          return errorResponse("An account with this email already exists.", 409, {
-            email: "An account with this email already exists.",
-          });
+          return errorResponse(
+            "An account with this email already exists.",
+            409,
+            {
+              email: "An account with this email already exists.",
+            },
+          );
         }
         if (code === "PASSWORD_TOO_SHORT" || code === "PASSWORD_TOO_LONG") {
           return errorResponse(msg, 422, { password: msg });
@@ -172,7 +176,7 @@ export async function POST(request) {
 
     return NextResponse.json(
       { success: true, message: "Account created. Your bench is registered." },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (err) {
     console.error("register error:", err);
@@ -192,13 +196,13 @@ export async function POST(request) {
       return errorResponse(
         "This serial number has already been registered.",
         409,
-        { serialNumber: "This serial number has already been registered." }
+        { serialNumber: "This serial number has already been registered." },
       );
     }
     if (code === "42703" || code === "42P01") {
       return errorResponse(
         "Database tables are out of date. Run your migration (drizzle-kit push).",
-        500
+        500,
       );
     }
     if (code === "ECONNREFUSED" || code === "ENOTFOUND") {

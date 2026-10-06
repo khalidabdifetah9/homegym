@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { signOut } from "@/lib/auth-client";
 
 const links = [
   { label: "Post Product", href: "/admin", isDefault: true },
@@ -46,7 +47,7 @@ function getActiveHref(pathname) {
   return "";
 }
 
-export default function Sidebar({ name = "Admin Name" }) {
+export default function Content({ name = "Admin Name" }) {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -54,18 +55,21 @@ export default function Sidebar({ name = "Admin Name" }) {
   const initial = name.charAt(0).toUpperCase();
   const activeHref = getActiveHref(pathname);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setOpen(false);
-    router.push("/login");
+    await signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.push("/signin");
+          router.refresh();
+        },
+      },
+    });
   };
 
   return (
     <>
       <div className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b border-white/10 bg-[#0a0a0a] px-6 md:hidden">
-        <p className="flex items-center gap-3 text-lg">
-          <span className="h-2 w-2 rounded-full bg-[#d4d4d4]"></span>
-          Admin Panel
-        </p>
         <button
           onClick={() => setOpen(!open)}
           aria-label={open ? "Close menu" : "Open menu"}
@@ -93,17 +97,6 @@ export default function Sidebar({ name = "Admin Name" }) {
           animate="visible"
           className="flex h-full flex-col px-5 py-6"
         >
-          <motion.p
-            variants={fadeUp}
-            className="mb-8 flex items-center gap-3 text-lg"
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#d4d4d4] opacity-75"></span>
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#d4d4d4]"></span>
-            </span>
-            Admin Panel
-          </motion.p>
-
           <motion.div
             variants={fadeUp}
             className="mb-8 flex items-center gap-4"

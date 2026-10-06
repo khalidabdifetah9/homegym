@@ -1,4 +1,4 @@
-import Sidebar from "@/Components/Admin/sideBar";
+import Sidebar from "@/Components/Admin/Sidebar/sideBar";
 
 export const metadata = {
   title: "Hardware & Catalog Management | ወንዳወንድ Home Gym",
@@ -10,7 +10,7 @@ export const metadata = {
 export default function AdminLayout({ children }) {
   return (
     <div className="min-h-svh overflow-x-hidden bg-[#0a0a0a] text-white">
-      <Sidebar name="Your Name" />
+      <Sidebar />
       <main>{children}</main>
     </div>
   );
