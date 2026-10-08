@@ -44,7 +44,7 @@ export default function SignIn() {
       }
 
       setStatus({ type: "success", message: "Signed in. Redirecting..." });
-      router.push("/workout_guide");
+      router.push("/dashboard");
       router.refresh();
     } catch (err) {
       setStatus({ type: "error", message: err.message });

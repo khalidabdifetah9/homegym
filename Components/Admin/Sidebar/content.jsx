@@ -6,13 +6,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { signOut } from "@/lib/auth-client";
 
-const links = [
-  { label: "Post Product", href: "/admin", isDefault: true },
-  { label: "Add Product Type", href: "/admin/add-product-type" },
-  { label: "Products", href: "/admin/products" },
-  { label: "Generate QR Code", href: "/admin/generate-qr" },
-];
-
 const ease = [0.22, 1, 0.36, 1];
 
 const container = {
@@ -30,30 +23,29 @@ const line = {
   visible: { scaleX: 1, transition: { duration: 1, ease } },
 };
 
-function getActiveHref(pathname) {
-  const matches = links.filter(
-    (item) => pathname === item.href || pathname.startsWith(item.href + "/"),
-  );
-
-  if (matches.length > 0) {
-    matches.sort((a, b) => b.href.length - a.href.length);
-    return matches[0].href;
-  }
-
-  if (pathname === "/admin") {
-    return links.find((item) => item.isDefault).href;
-  }
-
-  return "";
-}
-
-export default function Content({ name = "Admin Name" }) {
+export default function Content({ name = "Name", links }) {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
   const initial = name.charAt(0).toUpperCase();
   const activeHref = getActiveHref(pathname);
+  function getActiveHref(pathname) {
+    const matches = links.filter(
+      (item) => pathname === item.href || pathname.startsWith(item.href + "/"),
+    );
+
+    if (matches.length > 0) {
+      matches.sort((a, b) => b.href.length - a.href.length);
+      return matches[0].href;
+    }
+
+    if (pathname === "/admin") {
+      return links.find((item) => item.isDefault).href;
+    }
+
+    return "";
+  }
 
   const handleLogout = async () => {
     setOpen(false);
@@ -105,11 +97,11 @@ export default function Content({ name = "Admin Name" }) {
               {initial}
             </span>
             <div className="min-w-0">
-              <p className="truncate font-poppins text-base font-semibold">
+              <p className="truncate font-poppins md:mb-1 text-base font-semibold">
                 {name}
               </p>
               <p className="font-poppins text-xs uppercase tracking-[0.2em] text-white/50">
-                Admin
+                {links[0].label ==="Post Product"?"Admin":"Regular User"}
               </p>
             </div>
           </motion.div>

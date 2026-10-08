@@ -9,6 +9,20 @@ import {
   index,
 } from "drizzle-orm/pg-core";
 
+export const genderEnum = pgEnum("gender", ["male", "female"]);
+export const exerciseExperienceEnum = pgEnum("exercise_experience", [
+  "never",
+  "beginner",
+  "intermediate",
+  "advanced",
+]);
+
+export const exerciseCategoryEnum = pgEnum("exercise_category", [
+  "push",
+  "pull",
+  "legs",
+]);
+
 export const qrStatusEnum = pgEnum("qr_status", [
   "active",
   "scanned",
@@ -142,4 +156,77 @@ export const userProducts = pgTable("user_products", {
     .unique()
     .references(() => qrCodes.code, { onDelete: "cascade" }),
   registeredAt: timestamp("registered_at").defaultNow().notNull(),
+});
+
+export const userProfiles = pgTable(
+  "user_profiles",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .unique()
+      .references(() => user.id, { onDelete: "cascade" }),
+
+    gender: genderEnum("gender").notNull(),
+    age: integer("age").notNull(),
+    weightKg: integer("weight_kg").notNull(),
+
+    maxPullUps: integer("max_pull_ups").default(0).notNull(),
+    maxDips: integer("max_dips").default(0).notNull(),
+
+    experienceYears: exerciseExperienceEnum("experience_years")
+      .default("beginner")
+      .notNull(),
+
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [index("user_profiles_userId_idx").on(table.userId)],
+);
+
+export const benchExercises = pgTable("bench_exercises", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  title: text("title").notNull(),
+  category: exerciseCategoryEnum("category").notNull(),
+
+  startImageUrl: text("start_image_url").notNull(),
+  finishImageUrl: text("finish_image_url").notNull(),
+
+  instructions: text("instructions").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const workoutLogs = pgTable(
+  "workout_logs",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+
+    splitCategory: exerciseCategoryEnum("split_category").notNull(),
+    durationMinutes: integer("duration_minutes"),
+    completedAt: timestamp("completed_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("workout_logs_user_date_idx").on(table.userId, table.completedAt),
+  ],
+);
+
+
+export const workoutLogDetails = pgTable("workout_log_details", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  workoutLogId: uuid("workout_log_id")
+    .notNull()
+    .references(() => workoutLogs.id, { onDelete: "cascade" }),
+  exerciseId: uuid("exercise_id")
+    .notNull()
+    .references(() => benchExercises.id, { onDelete: "cascade" }),
+  
+  setsCompleted: integer("sets_completed").notNull(),
+  repsCompleted: integer("reps_completed").notNull(),
+  weightUsedKg: integer("weight_used_kg"),           
 });

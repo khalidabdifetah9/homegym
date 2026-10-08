@@ -92,7 +92,7 @@ export default function Register({ initialSerial = "" }) {
         type: "success",
         message: "Account created. Your bench is registered.",
       });
-      route.push("/workout_guide");
+      route.push("/user-details");
       route.refresh();
       setForm(initialForm);
     } catch (err) {

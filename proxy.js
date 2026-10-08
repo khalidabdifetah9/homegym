@@ -9,7 +9,7 @@ export async function proxy(request) {
 
   const isAdminApi = isPath(pathname, "/api/admin");
   const isAdminArea = isPath(pathname, "/admin");
-  const isGuideArea = isPath(pathname, "/workout_guide");
+  const isGuideArea = isPath(pathname, "/dashboard");
   const isSignIn = pathname === "/signin";
 
   const cookie = request.headers.get("cookie");
@@ -35,7 +35,7 @@ export async function proxy(request) {
   }
 
   const isAdmin = session.user.role === "admin";
-  const home = isAdmin ? "/admin" : "/workout_guide";
+  const home = isAdmin ? "/admin" : "/dashboard";
 
   if (isAdminApi) {
     if (!isAdmin) {
@@ -52,7 +52,7 @@ export async function proxy(request) {
   }
 
   if (isAdminArea && !isAdmin) {
-    return NextResponse.redirect(new URL("/workout_guide", request.url));
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   if (isGuideArea && isAdmin) {
@@ -65,7 +65,7 @@ export async function proxy(request) {
 export const config = {
   matcher: [
     "/admin/:path*",
-    "/workout_guide/:path*",
+    "/dashboard/:path*",
     "/api/admin/:path*",
     "/signin",
   ],
