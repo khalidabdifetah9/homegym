@@ -9,7 +9,7 @@ import {
   workoutLogDetails,
   benchExercises,
 } from "@/db/schema";
-import StatsView from "@/components/dashboard/Status/StatsView";
+import StatsView from "@/Components/dashboard/Status/StatsView";
 
 export const dynamic = "force-dynamic";
 
