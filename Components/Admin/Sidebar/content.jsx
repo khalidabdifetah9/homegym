@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -27,6 +27,9 @@ export default function Content({ name = "Name", links }) {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState("");
 
   const initial = name.charAt(0).toUpperCase();
   const activeHref = getActiveHref(pathname);
@@ -47,16 +50,46 @@ export default function Content({ name = "Name", links }) {
     return "";
   }
 
+  // Close the pop-up with the Escape key
+  useEffect(() => {
+    if (!confirmOpen) return;
+    const onKey = (e) => {
+      if (e.key === "Escape" && !loggingOut) setConfirmOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [confirmOpen, loggingOut]);
+
+  const askLogout = () => {
+    setLogoutError("");
+    setConfirmOpen(true);
+  };
+
   const handleLogout = async () => {
-    setOpen(false);
-    await signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          router.push("/signin");
-          router.refresh();
+    setLoggingOut(true);
+    setLogoutError("");
+
+    try {
+      await signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            setConfirmOpen(false);
+            setOpen(false);
+            router.push("/signin");
+            router.refresh();
+          },
+          onError: (ctx) => {
+            setLogoutError(
+              ctx?.error?.message || "Could not log out. Please try again."
+            );
+            setLoggingOut(false);
+          },
         },
-      },
-    });
+      });
+    } catch {
+      setLogoutError("Network error. Check your connection and try again.");
+      setLoggingOut(false);
+    }
   };
 
   return (
@@ -101,7 +134,7 @@ export default function Content({ name = "Name", links }) {
                 {name}
               </p>
               <p className="font-poppins text-xs uppercase tracking-[0.2em] text-white/50">
-                {links[0].label ==="Post Product"?"Admin":"Regular User"}
+                {links[0].label === "Post Product" ? "Admin" : "Regular User"}
               </p>
             </div>
           </motion.div>
@@ -150,7 +183,7 @@ export default function Content({ name = "Name", links }) {
 
             <motion.button
               variants={fadeUp}
-              onClick={handleLogout}
+              onClick={askLogout}
               className="flex w-full items-center justify-between border border-white/30 px-4 py-3.5 font-poppins text-xs uppercase tracking-[0.1em] transition-colors duration-300 hover:border-[#d4d4d4] hover:text-[#d4d4d4]"
             >
               Logout
@@ -159,6 +192,58 @@ export default function Content({ name = "Name", links }) {
           </div>
         </motion.div>
       </aside>
+
+      {/* Confirm pop-up */}
+      {confirmOpen && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 px-5"
+          onClick={() => !loggingOut && setConfirmOpen(false)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="logout-title"
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-sm border border-white/20 bg-[#0a0a0a] p-6 font-poppins text-white"
+          >
+            <h2
+              id="logout-title"
+              className="mb-2 text-xl font-semibold uppercase"
+            >
+              Log out?
+            </h2>
+            <p className="mb-6 text-sm leading-snug text-white/60">
+              Are you sure you want to log out?
+            </p>
+
+            {logoutError && (
+              <p className="mb-4 border-l-2 border-red-500 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+                {logoutError}
+              </p>
+            )}
+
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                autoFocus
+                disabled={loggingOut}
+                onClick={() => setConfirmOpen(false)}
+                className="border border-white/40 px-4 py-3.5 text-xs uppercase tracking-[0.15em] transition-colors duration-300 hover:bg-white/10 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={loggingOut}
+                onClick={handleLogout}
+                className="border border-[#d4d4d4] bg-[#d4d4d4] px-4 py-3.5 text-xs uppercase tracking-[0.15em] text-black transition-colors duration-300 hover:bg-transparent hover:text-[#d4d4d4] disabled:cursor-wait disabled:opacity-60"
+              >
+                {loggingOut ? "Logging out..." : "Log out"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
