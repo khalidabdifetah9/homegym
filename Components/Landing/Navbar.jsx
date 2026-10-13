@@ -9,7 +9,7 @@ const links = [
   { label: "Home", href: "/" },
   { label: "Products", href: "/products" },
   { label: "Contact Us", href: "/contact_us" },
-  { label: "Register", href: "/register" },
+  { label: "My Workout", href: "/dashboard" },
 ];
 
 const ease = [0.22, 1, 0.36, 1];

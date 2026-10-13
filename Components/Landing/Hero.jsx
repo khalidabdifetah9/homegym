@@ -8,9 +8,8 @@ import { Noto_Sans_Ethiopic } from "next/font/google";
 
 const ethiopic = Noto_Sans_Ethiopic({ subsets: ["ethiopic"] });
 
-// Files in public/Landing_Img/
-const MOBILE_IMAGE = "/Landing_Img/hero_formobile.png";
-const DESKTOP_IMAGE = "/Landing_Img/hero_forpc.png";
+const MOBILE_IMAGE = "/Landing_Img/hero_formobile.avif";
+const DESKTOP_IMAGE = "/Landing_Img/hero_forpc.avif";
 
 const lines = ["ወንዳወንድ", "Home Gym"];
 
@@ -70,7 +69,6 @@ export default function Hero() {
   const desktopRef = useRef(null);
 
   useEffect(() => {
-    // Start if the visible image was already cached
     const visible =
       window.innerWidth >= 768 ? desktopRef.current : mobileRef.current;
     if (visible?.complete) setReady(true);
@@ -87,7 +85,6 @@ export default function Hero() {
       className="relative flex h-svh w-full flex-col overflow-hidden bg-[#0a0a0a] text-white md:block"
     >
       <div className="relative min-h-0 flex-1 overflow-hidden md:absolute md:inset-0 md:flex-none">
-        {/* Mobile image */}
         <Image
           ref={mobileRef}
           src={MOBILE_IMAGE}
@@ -100,7 +97,6 @@ export default function Hero() {
           className="object-cover object-center md:hidden"
         />
 
-        {/* Desktop image */}
         <Image
           ref={desktopRef}
           src={DESKTOP_IMAGE}

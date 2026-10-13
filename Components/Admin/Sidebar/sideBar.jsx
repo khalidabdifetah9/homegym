@@ -17,6 +17,7 @@ const Sidebar = async () => {
     { label: "Products", href: "/admin/products" },
     { label: "Generate QR Code", href: "/admin/generate-qr" },
     { label: "Add Workout", href: "/admin/add-workout" },
+    { label: "Check Warranty", href: "/admin/check-warranty" },
   ];
 
   return <Content links={links} name={Admin} />;
