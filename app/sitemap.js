@@ -3,7 +3,7 @@ import { db } from "@/db";
 import { products } from "@/db/schema";
 
 const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL || "https://homegym-teal.vercel.app"
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.wendawend-homegym.com"
 ).replace(/\/$/, "");
 
 export const revalidate = 3600;
