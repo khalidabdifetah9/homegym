@@ -17,7 +17,7 @@ const kronaOne = Krona_One({
 export const metadata = {
   title: "ወንዳወንድ Home Gym | Commercial Grade Multi Functional Benches",
   description:
-    "Skip the crowded gyms. Premium, commercial grade all-in-one workout benches imported in Ethiopia. Built for heavy lifts with zero monthly fees.",
+    "Skip the crowded gyms. Premium, commercial grade 26+ workouts on one benches locally manufactured in Ethiopia. Built for heavy lifts with zero monthly fees.",
   icons: {
     icon: "/logo_black.svg",
   },
