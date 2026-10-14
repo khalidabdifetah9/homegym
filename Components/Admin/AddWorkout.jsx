@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import CldUpload from "./CldUpload";
+import CldVideoUpload from "./CldVideoUpload";
 
 const CATEGORY_OPTIONS = [
   { value: "push", label: "Push" },
@@ -16,6 +17,8 @@ export default function AddWorkout() {
   const [startImageName, setStartImageName] = useState("");
   const [finishImageUrl, setFinishImageUrl] = useState("");
   const [finishImageName, setFinishImageName] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
+  const [videoName, setVideoName] = useState("");
   const [instructions, setInstructions] = useState("");
   const [loading, setLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -76,6 +79,7 @@ export default function AddWorkout() {
           category,
           startImageUrl,
           finishImageUrl,
+          videoUrl: videoUrl || null,
           instructions,
         }),
       });
@@ -106,6 +110,8 @@ export default function AddWorkout() {
       setStartImageName("");
       setFinishImageUrl("");
       setFinishImageName("");
+      setVideoUrl("");
+      setVideoName("");
       setInstructions("");
     } catch (err) {
       setMessage({
@@ -233,6 +239,47 @@ export default function AddWorkout() {
           </div>
           {fieldErrors.finishImageUrl && (
             <p className={errorClass}>{fieldErrors.finishImageUrl}</p>
+          )}
+        </div>
+
+        <div className="mb-6 sm:mb-8">
+          <label className={labelClass}>Demonstration Video (optional)</label>
+          <div className="flex items-center gap-3 border-b border-zinc-600 pb-3 sm:gap-4">
+            <CldVideoUpload
+              hasVideo={Boolean(videoUrl)}
+              onUploadSuccess={(url, name) => {
+                setVideoUrl(url);
+                setVideoName(name);
+                clearFieldError("videoUrl");
+              }}
+            />
+            <span
+              className={`min-w-0 flex-1 truncate text-sm ${
+                videoName ? "text-white" : "text-zinc-500"
+              }`}
+              title={videoName}
+            >
+              {videoName || "No video chosen"}
+            </span>
+            {videoUrl && (
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => {
+                  setVideoUrl("");
+                  setVideoName("");
+                }}
+                className="shrink-0 text-xs uppercase tracking-[0.15em] text-zinc-500 transition-colors hover:text-red-400 disabled:opacity-50"
+              >
+                Remove
+              </button>
+            )}
+          </div>
+          <p className="mt-2 text-xs text-zinc-600">
+            MP4, MOV or WebM, up to 50 MB.
+          </p>
+          {fieldErrors.videoUrl && (
+            <p className={errorClass}>{fieldErrors.videoUrl}</p>
           )}
         </div>
 

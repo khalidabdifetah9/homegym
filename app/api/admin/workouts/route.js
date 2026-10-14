@@ -27,7 +27,23 @@ function checkImage(value, label) {
   return null;
 }
 
-// Admin access is enforced by middleware.js (/api/admin/*)
+function checkVideo(value) {
+  if (value === undefined || value === null || value === "") return null;
+  if (typeof value !== "string") return "Video URL is not valid.";
+
+  try {
+    const url = new URL(value.trim());
+    if (url.protocol !== "https:") return "Video URL must use https.";
+    if (url.hostname !== "res.cloudinary.com")
+      return "Video must be uploaded to Cloudinary.";
+    if (!url.pathname.includes("/video/upload/"))
+      return "The uploaded file is not a video.";
+  } catch {
+    return "Video URL is not a valid URL.";
+  }
+  return null;
+}
+
 export async function POST(request) {
   let body;
   try {
@@ -36,8 +52,14 @@ export async function POST(request) {
     return errorResponse("Request body must be valid JSON.", 400);
   }
 
-  const { title, category, startImageUrl, finishImageUrl, instructions } =
-    body ?? {};
+  const {
+    title,
+    category,
+    startImageUrl,
+    finishImageUrl,
+    videoUrl,
+    instructions,
+  } = body ?? {};
   const errors = {};
 
   if (typeof title !== "string" || !title.trim()) {
@@ -55,6 +77,9 @@ export async function POST(request) {
 
   const finishError = checkImage(finishImageUrl, "Finish image");
   if (finishError) errors.finishImageUrl = finishError;
+
+  const videoError = checkVideo(videoUrl);
+  if (videoError) errors.videoUrl = videoError;
 
   if (typeof instructions !== "string" || !instructions.trim()) {
     errors.instructions = "Instructions are required.";
@@ -74,6 +99,7 @@ export async function POST(request) {
         category,
         startImageUrl: startImageUrl.trim(),
         finishImageUrl: finishImageUrl.trim(),
+        videoUrl: videoUrl ? videoUrl.trim() : null,
         instructions: instructions.trim(),
       })
       .returning();

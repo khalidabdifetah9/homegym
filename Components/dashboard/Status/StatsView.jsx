@@ -62,8 +62,8 @@ export default function StatsView({ stats, profile,username}) {
   const weekPct = Math.min(100, Math.round((week.done / week.goal) * 100));
 
   return (
-    <main className="min-h-svh bg-[#0a0a0a] px-5 pb-16 pt-24 font-poppins text-white md:px-17.5 md:pt-32">
-      <div className="mx-auto w-full max-w-5xl">
+    <main className="min-h-svh bg-[#0a0a0a] px-5 pb-16 pt-24 font-poppins text-white md:px-17.5 md:pt-10">
+      <div className="mx-auto w-full max-w-6xl">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="mb-3 text-[10px] uppercase tracking-[0.2em] text-white/50 sm:text-xs">

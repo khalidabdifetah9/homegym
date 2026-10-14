@@ -194,6 +194,7 @@ export const benchExercises = pgTable("bench_exercises", {
 
   startImageUrl: text("start_image_url").notNull(),
   finishImageUrl: text("finish_image_url").notNull(),
+  videoUrl: text("video_url"),
 
   instructions: text("instructions").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),

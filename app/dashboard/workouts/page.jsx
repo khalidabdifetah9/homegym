@@ -36,24 +36,38 @@ export default async function WorkoutGuidePage({ searchParams }) {
       category: benchExercises.category,
       startImageUrl: benchExercises.startImageUrl,
       finishImageUrl: benchExercises.finishImageUrl,
+      videoUrl: benchExercises.videoUrl,
       instructions: benchExercises.instructions,
     })
     .from(benchExercises);
+
+  const videoById = new Map(exercises.map((e) => [e.id, e.videoUrl ?? null]));
+
   const eat = new Date(Date.now() + 3 * 60 * 60 * 1000);
   const dateKey = eat.toISOString().slice(0, 10);
   const dayNumber = Math.floor(eat.getTime() / 86400000);
   const todaySplit = SPLITS[dayNumber % SPLITS.length];
   const split = SPLITS.includes(splitParam) ? splitParam : todaySplit;
 
+  const generated = generateWorkoutPlan(
+    profile,
+    exercises,
+    split,
+    `${session.user.id}|${dateKey}`,
+  );
+
   const plan = {
-    ...generateWorkoutPlan(
-      profile,
-      exercises,
-      split,
-      `${session.user.id}|${dateKey}`,
-    ),
+    ...generated,
+    exercises: generated.exercises.map((e) => ({
+      ...e,
+      videoUrl: e.videoUrl ?? videoById.get(e.id) ?? null,
+    })),
     todaySplit,
   };
 
-  return <Workout key={plan.split} workoutPlan={plan} />;
+  return (
+    <div className="md:ml-50">
+      <Workout key={plan.split} workoutPlan={plan} />
+    </div>
+  );
 }

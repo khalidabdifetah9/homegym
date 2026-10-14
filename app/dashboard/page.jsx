@@ -33,7 +33,7 @@ export default async function StatsPage() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) redirect("/signin");
   const userId = session.user.id;
-  const username = session.user.name
+  const username = session.user.name;
 
   const [profile] = await db
     .select({
@@ -183,5 +183,9 @@ export default async function StatsPage() {
     recent,
   };
 
-  return <StatsView username = {username} stats={stats} profile={profile ?? null} />;
+  return (
+    <div className="md:ml-50">
+      <StatsView username={username} stats={stats} profile={profile ?? null} />
+    </div>
+  );
 }

@@ -51,7 +51,7 @@ export default function Workout({ workoutPlan }) {
     estimatedMinutes,
   } = workoutPlan;
 
-  const [phase, setPhase] = useState("overview"); // overview | ready | work | rest | done
+  const [phase, setPhase] = useState("overview");
   const [exIndex, setExIndex] = useState(0);
   const [setNumber, setSetNumber] = useState(1);
   const [timeLeft, setTimeLeft] = useState(0);
@@ -250,11 +250,10 @@ export default function Workout({ workoutPlan }) {
     if (window.confirm("End this workout?")) resetToOverview();
   };
 
-  // ---------- overview ----------
   if (phase === "overview") {
     return (
-      <main className="min-h-svh bg-[#0a0a0a] px-5 pb-16 pt-24 font-poppins text-white md:px-17.5 md:pt-32">
-        <div className="mx-auto w-full max-w-3xl">
+      <main className="min-h-svh bg-[#0a0a0a] px-5 pb-16 pt-24 font-poppins text-white md:px-17.5 md:pt-10">
+        <div className="mx-auto w-full max-w-6xl">
           <p className="mb-3 text-[10px] uppercase tracking-[0.2em] text-white/50 sm:text-xs">
             Your workout
           </p>
@@ -262,7 +261,6 @@ export default function Workout({ workoutPlan }) {
             {splitLabel} day
           </h1>
 
-          {/* Split tabs */}
           <div className="mb-8 grid grid-cols-3 gap-2">
             {splits.map((s) => (
               <Link
@@ -284,7 +282,6 @@ export default function Workout({ workoutPlan }) {
             ))}
           </div>
 
-          {/* Level */}
           <div className="mb-6 border border-white/20 p-4">
             <p className="mb-1 text-[10px] uppercase tracking-[0.2em] text-white/50">
               Your level
@@ -337,6 +334,11 @@ export default function Workout({ workoutPlan }) {
                     <span className="min-w-0 flex-1 truncate text-sm uppercase tracking-[0.05em]">
                       {e.title}
                     </span>
+                    {e.videoUrl && (
+                      <span className="shrink-0 border border-white/30 px-2 py-1 text-[9px] uppercase tracking-[0.15em] text-white/60">
+                        Video
+                      </span>
+                    )}
                     <span className="shrink-0 text-xs text-white/60">
                       {e.sets} × {e.reps}
                     </span>
@@ -361,7 +363,6 @@ export default function Workout({ workoutPlan }) {
     );
   }
 
-  // ---------- done ----------
   if (phase === "done") {
     const otherSplits = splits.filter((s) => s.key !== split);
     return (
@@ -434,13 +435,11 @@ export default function Workout({ workoutPlan }) {
     );
   }
 
-  // ---------- ready / work / rest ----------
   const nextExercise = setNumber < current.sets ? null : exercises[exIndex + 1];
 
   return (
     <main className="min-h-svh bg-[#0a0a0a] px-5 pb-40 pt-24 font-poppins text-white md:px-17.5 md:pt-28">
       <div className="mx-auto w-full max-w-3xl">
-        {/* Progress */}
         <div className="mb-6">
           <div className="mb-3 flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-white/50 sm:text-xs">
             <span>
@@ -492,6 +491,15 @@ export default function Workout({ workoutPlan }) {
                       label="Finish"
                     />
                   </div>
+                  {nextExercise.videoUrl && (
+                    <div className="mt-2">
+                      <VideoPlayer
+                        key={nextExercise.id}
+                        src={nextExercise.videoUrl}
+                        label="Video"
+                      />
+                    </div>
+                  )}
                 </>
               ) : (
                 <p className="text-lg font-semibold uppercase">
@@ -514,7 +522,6 @@ export default function Workout({ workoutPlan }) {
               </p>
             </div>
 
-            {/* Start and finish side by side */}
             <div className="mb-8 grid grid-cols-2 gap-2 md:gap-3">
               <PoseImage
                 src={current.startImageUrl}
@@ -527,6 +534,16 @@ export default function Workout({ workoutPlan }) {
                 label="2 · Finish"
               />
             </div>
+
+            {current.videoUrl && (
+              <div className="mb-8">
+                <VideoPlayer
+                  key={current.id}
+                  src={current.videoUrl}
+                  label="3 · Video demonstration"
+                />
+              </div>
+            )}
 
             {phase === "work" && (
               <div className="mb-8">
@@ -551,7 +568,6 @@ export default function Workout({ workoutPlan }) {
         )}
       </div>
 
-      {/* Bottom action bar */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/20 bg-black/95 px-5 py-4 backdrop-blur">
         <div className="mx-auto flex max-w-3xl flex-col gap-2">
           <div className="flex gap-2">
@@ -636,6 +652,32 @@ function PoseImage({ src, alt, label }) {
           fill
           sizes="(min-width: 768px) 360px, 45vw"
           className="object-contain"
+        />
+      </div>
+      <figcaption className="mt-2 text-center text-[10px] uppercase tracking-[0.2em] text-white/60">
+        {label}
+      </figcaption>
+    </figure>
+  );
+}
+
+function VideoPlayer({ src, label }) {
+  const [failed, setFailed] = useState(false);
+
+  if (failed) return null;
+
+  return (
+    <figure>
+      <div className="relative w-full bg-[#d4d4d4]">
+        <video
+          src={src}
+          controls
+          loop
+          muted
+          playsInline
+          preload="metadata"
+          onError={() => setFailed(true)}
+          className="aspect-video w-full bg-black object-contain"
         />
       </div>
       <figcaption className="mt-2 text-center text-[10px] uppercase tracking-[0.2em] text-white/60">
