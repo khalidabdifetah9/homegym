@@ -22,6 +22,9 @@ export const metadata = {
     icon: "/logo_black.svg",
   },
   other: { "color-scheme": "only light" },
+  verification: {
+    google: "gd6m65091I3ujxrb2D-sBwVU3Rnv6kp-eVnfwy-Qrr4",
+  },
 };
 
 export default function RootLayout({ children }) {
