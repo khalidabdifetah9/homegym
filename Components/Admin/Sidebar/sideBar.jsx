@@ -17,6 +17,7 @@ const Sidebar = async () => {
     { label: "Products", href: "/admin/products" },
     { label: "Generate QR Code", href: "/admin/generate-qr" },
     { label: "Add Workout", href: "/admin/add-workout" },
+    { label: "Update Workout", href: "/admin/update-workout" },
     { label: "Check Warranty", href: "/admin/check-warranty" },
   ];
 
