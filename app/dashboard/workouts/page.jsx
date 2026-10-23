@@ -34,6 +34,8 @@ export default async function WorkoutGuidePage({ searchParams }) {
       id: benchExercises.id,
       title: benchExercises.title,
       category: benchExercises.category,
+      muscleGroup: benchExercises.muscleGroup,
+      subMuscle: benchExercises.subMuscle,
       startImageUrl: benchExercises.startImageUrl,
       finishImageUrl: benchExercises.finishImageUrl,
       videoUrl: benchExercises.videoUrl,

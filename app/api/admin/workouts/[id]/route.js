@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { benchExercises } from "@/db/schema";
+import { validateMuscle } from "@/lib/muscleGroups";
 
 export const dynamic = "force-dynamic";
 
@@ -94,6 +95,8 @@ export async function PATCH(request, { params }) {
   const {
     title,
     category,
+    muscleGroup,
+    subMuscle,
     startImageUrl,
     finishImageUrl,
     videoUrl,
@@ -110,6 +113,8 @@ export async function PATCH(request, { params }) {
   if (!CATEGORIES.includes(category)) {
     errors.category = "Please select a category.";
   }
+
+  Object.assign(errors, validateMuscle(category, muscleGroup, subMuscle));
 
   const startError = checkImage(startImageUrl, "Start image");
   if (startError) errors.startImageUrl = startError;
@@ -136,6 +141,8 @@ export async function PATCH(request, { params }) {
       .set({
         title: title.trim(),
         category,
+        muscleGroup,
+        subMuscle: subMuscle || null,
         startImageUrl: startImageUrl.trim(),
         finishImageUrl: finishImageUrl.trim(),
         videoUrl: videoUrl ? videoUrl.trim() : null,

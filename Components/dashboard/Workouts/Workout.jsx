@@ -67,6 +67,18 @@ export default function Workout({ workoutPlan }) {
   const setsLogRef = useRef({});
 
   const current = exercises[exIndex];
+  // Group consecutive exercises by muscle group for the overview
+  const sections = [];
+  exercises.forEach((e, i) => {
+    const last = sections[sections.length - 1];
+    if (last && last.key === e.groupKey) last.items.push({ e, i });
+    else
+      sections.push({
+        key: e.groupKey,
+        label: e.groupLabel,
+        items: [{ e, i }],
+      });
+  });
   const totalSets = exercises.reduce((n, e) => n + e.sets, 0);
   const doneBefore =
     exercises.slice(0, exIndex).reduce((n, e) => n + e.sets, 0) +
@@ -312,40 +324,51 @@ export default function Workout({ workoutPlan }) {
                 />
                 <Stat label="Time" value={`~${estimatedMinutes} min`} />
               </div>
+              <div className="mb-8 flex flex-col gap-6">
+                {sections.map((s) => (
+                  <div key={s.key}>
+                    <h3 className="mb-2 flex items-center justify-between border-b border-white/20 pb-2 text-xs uppercase tracking-[0.2em] text-white/60">
+                      <span>{s.label}</span>
+                      <span className="text-white/30">{s.items.length}</span>
+                    </h3>
 
-              <ol className="mb-8 flex flex-col gap-2">
-                {exercises.map((e, i) => (
-                  <li
-                    key={e.id}
-                    className="flex items-center gap-4 bg-[#141414] p-3"
-                  >
-                    <span className="w-6 text-sm text-white/40">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <div className="relative h-14 w-14 shrink-0 bg-[#d4d4d4]">
-                      <Image
-                        src={e.startImageUrl}
-                        alt={e.title}
-                        fill
-                        sizes="56px"
-                        className="object-contain"
-                      />
-                    </div>
-                    <span className="min-w-0 flex-1 truncate text-sm uppercase tracking-[0.05em]">
-                      {e.title}
-                    </span>
-                    {e.videoUrl && (
-                      <span className="shrink-0 border border-white/30 px-2 py-1 text-[9px] uppercase tracking-[0.15em] text-white/60">
-                        Video
-                      </span>
-                    )}
-                    <span className="shrink-0 text-xs text-white/60">
-                      {e.sets} × {e.reps}
-                    </span>
-                  </li>
+                    <ol className="flex flex-col gap-2">
+                      {s.items.map(({ e, i }) => (
+                        <li
+                          key={e.id}
+                          className="flex items-center gap-4 bg-[#141414] p-3"
+                        >
+                          <span className="w-6 text-sm text-white/40">
+                            {String(i + 1).padStart(2, "0")}
+                          </span>
+                          <div className="relative h-14 w-14 shrink-0 bg-[#d4d4d4]">
+                            <Image
+                              src={e.startImageUrl}
+                              alt={e.title}
+                              fill
+                              sizes="56px"
+                              className="object-contain"
+                            />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm uppercase tracking-[0.05em]">
+                              {e.title}
+                            </p>
+                            {e.subLabel && (
+                              <p className="text-[10px] uppercase tracking-[0.15em] text-sky-400">
+                                {e.subLabel}
+                              </p>
+                            )}
+                          </div>
+                          <span className="shrink-0 text-xs text-white/60">
+                            {e.sets} × {e.reps}
+                          </span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
                 ))}
-              </ol>
-
+              </div>
               <button
                 type="button"
                 onClick={startWorkout}
@@ -514,6 +537,9 @@ export default function Workout({ workoutPlan }) {
         ) : (
           <>
             <div className="mb-6">
+              <p className="mb-2 text-[10px] uppercase tracking-[0.2em] text-sky-400 sm:text-xs">
+                {current.muscleLabel}
+              </p>
               <h1 className="mb-2 text-3xl font-semibold uppercase leading-tight md:text-5xl">
                 {current.title}
               </h1>

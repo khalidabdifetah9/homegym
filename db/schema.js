@@ -192,6 +192,9 @@ export const benchExercises = pgTable("bench_exercises", {
   title: text("title").notNull(),
   category: exerciseCategoryEnum("category").notNull(),
 
+  muscleGroup: text("muscle_group"), // chest, shoulders, triceps, back, ...
+  subMuscle: text("sub_muscle"),
+
   startImageUrl: text("start_image_url").notNull(),
   finishImageUrl: text("finish_image_url").notNull(),
   videoUrl: text("video_url"),
@@ -217,7 +220,6 @@ export const workoutLogs = pgTable(
   ],
 );
 
-
 export const workoutLogDetails = pgTable("workout_log_details", {
   id: uuid("id").defaultRandom().primaryKey(),
   workoutLogId: uuid("workout_log_id")
@@ -226,8 +228,8 @@ export const workoutLogDetails = pgTable("workout_log_details", {
   exerciseId: uuid("exercise_id")
     .notNull()
     .references(() => benchExercises.id, { onDelete: "cascade" }),
-  
+
   setsCompleted: integer("sets_completed").notNull(),
   repsCompleted: integer("reps_completed").notNull(),
-  weightUsedKg: integer("weight_used_kg"),           
+  weightUsedKg: integer("weight_used_kg"),
 });

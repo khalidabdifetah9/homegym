@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { benchExercises } from "@/db/schema";
+import { validateMuscle } from "@/lib/muscleGroups";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +28,7 @@ function checkImage(value, label) {
   return null;
 }
 
+// Optional: empty is fine, but if given it must be a Cloudinary video link
 function checkVideo(value) {
   if (value === undefined || value === null || value === "") return null;
   if (typeof value !== "string") return "Video URL is not valid.";
@@ -44,6 +46,7 @@ function checkVideo(value) {
   return null;
 }
 
+// Admin access is enforced by middleware.js (/api/admin/*)
 export async function POST(request) {
   let body;
   try {
@@ -55,6 +58,8 @@ export async function POST(request) {
   const {
     title,
     category,
+    muscleGroup,
+    subMuscle,
     startImageUrl,
     finishImageUrl,
     videoUrl,
@@ -71,6 +76,9 @@ export async function POST(request) {
   if (!CATEGORIES.includes(category)) {
     errors.category = "Please select a category.";
   }
+
+  // Muscle group and target area must belong to the category
+  Object.assign(errors, validateMuscle(category, muscleGroup, subMuscle));
 
   const startError = checkImage(startImageUrl, "Start image");
   if (startError) errors.startImageUrl = startError;
@@ -97,6 +105,8 @@ export async function POST(request) {
       .values({
         title: title.trim(),
         category,
+        muscleGroup,
+        subMuscle: subMuscle || null,
         startImageUrl: startImageUrl.trim(),
         finishImageUrl: finishImageUrl.trim(),
         videoUrl: videoUrl ? videoUrl.trim() : null,

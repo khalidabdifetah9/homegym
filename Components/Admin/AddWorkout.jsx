@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import CldUpload from "./CldUpload";
 import CldVideoUpload from "./CldVideoUpload";
+import MuscleSelect from "./MuscleSelect";
+import { validateMuscle } from "@/lib/muscleGroups";
 
 const CATEGORY_OPTIONS = [
   { value: "push", label: "Push" },
@@ -13,6 +15,8 @@ const CATEGORY_OPTIONS = [
 export default function AddWorkout() {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
+  const [muscleGroup, setMuscleGroup] = useState("");
+  const [subMuscle, setSubMuscle] = useState("");
   const [startImageUrl, setStartImageUrl] = useState("");
   const [startImageName, setStartImageName] = useState("");
   const [finishImageUrl, setFinishImageUrl] = useState("");
@@ -56,6 +60,7 @@ export default function AddWorkout() {
     const localErrors = {};
     if (!title.trim()) localErrors.title = "Workout title is required.";
     if (!category) localErrors.category = "Please select a category.";
+    Object.assign(localErrors, validateMuscle(category, muscleGroup, subMuscle));
     if (!startImageUrl) localErrors.startImageUrl = "Start image is required.";
     if (!finishImageUrl)
       localErrors.finishImageUrl = "Finish image is required.";
@@ -77,6 +82,8 @@ export default function AddWorkout() {
         body: JSON.stringify({
           title,
           category,
+          muscleGroup,
+          subMuscle: subMuscle || null,
           startImageUrl,
           finishImageUrl,
           videoUrl: videoUrl || null,
@@ -106,6 +113,8 @@ export default function AddWorkout() {
       setMessage({ type: "success", text: data?.message || "Workout added." });
       setTitle("");
       setCategory("");
+      setMuscleGroup("");
+      setSubMuscle("");
       setStartImageUrl("");
       setStartImageName("");
       setFinishImageUrl("");
@@ -144,6 +153,7 @@ export default function AddWorkout() {
           Add a workout
         </h1>
 
+        {/* Title */}
         <div className="mb-6 sm:mb-8">
           <label className={labelClass}>Title</label>
           <input
@@ -163,6 +173,7 @@ export default function AddWorkout() {
           )}
         </div>
 
+        {/* Category */}
         <div className="mb-6 sm:mb-8">
           <label className={labelClass}>Category</label>
           <select
@@ -170,7 +181,11 @@ export default function AddWorkout() {
             disabled={loading}
             onChange={(e) => {
               setCategory(e.target.value);
+              setMuscleGroup("");
+              setSubMuscle("");
               clearFieldError("category");
+              clearFieldError("muscleGroup");
+              clearFieldError("subMuscle");
             }}
             className={`${fieldClass} [color-scheme:dark] ${
               category ? "" : "text-zinc-600"
@@ -194,6 +209,26 @@ export default function AddWorkout() {
           )}
         </div>
 
+        {/* Muscle group + target area */}
+        <MuscleSelect
+          category={category}
+          group={muscleGroup}
+          sub={subMuscle}
+          disabled={loading}
+          errors={fieldErrors}
+          onGroup={(v) => {
+            setMuscleGroup(v);
+            setSubMuscle("");
+            clearFieldError("muscleGroup");
+            clearFieldError("subMuscle");
+          }}
+          onSub={(v) => {
+            setSubMuscle(v);
+            clearFieldError("subMuscle");
+          }}
+        />
+
+        {/* Start image */}
         <div className="mb-6 sm:mb-8">
           <label className={labelClass}>Start Position Image</label>
           <div className="flex items-center gap-3 border-b border-zinc-600 pb-3 sm:gap-4">
@@ -218,6 +253,7 @@ export default function AddWorkout() {
           )}
         </div>
 
+        {/* Finish image */}
         <div className="mb-6 sm:mb-8">
           <label className={labelClass}>Finish Position Image</label>
           <div className="flex items-center gap-3 border-b border-zinc-600 pb-3 sm:gap-4">
@@ -242,6 +278,7 @@ export default function AddWorkout() {
           )}
         </div>
 
+        {/* Video */}
         <div className="mb-6 sm:mb-8">
           <label className={labelClass}>Demonstration Video (optional)</label>
           <div className="flex items-center gap-3 border-b border-zinc-600 pb-3 sm:gap-4">
@@ -283,6 +320,7 @@ export default function AddWorkout() {
           )}
         </div>
 
+        {/* Instructions */}
         <div className="mb-6 sm:mb-8">
           <label className={labelClass}>Instructions</label>
           <textarea

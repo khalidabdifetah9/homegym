@@ -11,6 +11,8 @@ export default async function AdminWorkoutsPage() {
       id: benchExercises.id,
       title: benchExercises.title,
       category: benchExercises.category,
+      muscleGroup: benchExercises.muscleGroup,
+      subMuscle: benchExercises.subMuscle,
       startImageUrl: benchExercises.startImageUrl,
       videoUrl: benchExercises.videoUrl,
     })
@@ -21,6 +23,8 @@ export default async function AdminWorkoutsPage() {
     id: r.id,
     title: r.title,
     category: r.category,
+    muscleGroup: r.muscleGroup,
+    subMuscle: r.subMuscle,
     startImageUrl: r.startImageUrl,
     hasVideo: Boolean(r.videoUrl),
   }));

@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import CldUpload from "./CldUpload";
 import CldVideoUpload from "./CldVideoUpload";
+import MuscleSelect from "./MuscleSelect";
+import { validateMuscle } from "@/lib/muscleGroups";
 
 const CATEGORY_OPTIONS = [
   { value: "push", label: "Push" },
@@ -21,6 +23,8 @@ export default function EditWorkout({ workout }) {
 
   const [title, setTitle] = useState(workout.title);
   const [category, setCategory] = useState(workout.category);
+  const [muscleGroup, setMuscleGroup] = useState(workout.muscleGroup ?? "");
+  const [subMuscle, setSubMuscle] = useState(workout.subMuscle ?? "");
   const [startImageUrl, setStartImageUrl] = useState(workout.startImageUrl);
   const [finishImageUrl, setFinishImageUrl] = useState(workout.finishImageUrl);
   const [videoUrl, setVideoUrl] = useState(workout.videoUrl ?? "");
@@ -38,6 +42,8 @@ export default function EditWorkout({ workout }) {
   const dirty =
     title !== saved.title ||
     category !== saved.category ||
+    muscleGroup !== (saved.muscleGroup ?? "") ||
+    subMuscle !== (saved.subMuscle ?? "") ||
     startImageUrl !== saved.startImageUrl ||
     finishImageUrl !== saved.finishImageUrl ||
     videoUrl !== (saved.videoUrl ?? "") ||
@@ -75,8 +81,10 @@ export default function EditWorkout({ workout }) {
     const localErrors = {};
     if (!title.trim()) localErrors.title = "Workout title is required.";
     if (!category) localErrors.category = "Please select a category.";
+    Object.assign(localErrors, validateMuscle(category, muscleGroup, subMuscle));
     if (!startImageUrl) localErrors.startImageUrl = "Start image is required.";
-    if (!finishImageUrl) localErrors.finishImageUrl = "Finish image is required.";
+    if (!finishImageUrl)
+      localErrors.finishImageUrl = "Finish image is required.";
     if (!instructions.trim())
       localErrors.instructions = "Instructions are required.";
 
@@ -94,6 +102,8 @@ export default function EditWorkout({ workout }) {
         body: JSON.stringify({
           title,
           category,
+          muscleGroup,
+          subMuscle: subMuscle || null,
           startImageUrl,
           finishImageUrl,
           videoUrl: videoUrl || null,
@@ -110,8 +120,13 @@ export default function EditWorkout({ workout }) {
 
       if (!res.ok) {
         if (data?.errors) setFieldErrors(data.errors);
-        const details = data?.errors ? Object.values(data.errors).join(" ") : "";
-        notify("error", details || data?.message || `Request failed (${res.status})`);
+        const details = data?.errors
+          ? Object.values(data.errors).join(" ")
+          : "";
+        notify(
+          "error",
+          details || data?.message || `Request failed (${res.status})`
+        );
         return;
       }
 
@@ -119,6 +134,8 @@ export default function EditWorkout({ workout }) {
         ...workout,
         title: title.trim(),
         category,
+        muscleGroup,
+        subMuscle: subMuscle || null,
         startImageUrl,
         finishImageUrl,
         videoUrl: videoUrl || null,
@@ -185,7 +202,7 @@ export default function EditWorkout({ workout }) {
     <div className="min-h-screen bg-[#0a0a0a] px-5 pb-16 pt-24 font-poppins text-white md:ml-64 md:px-10 md:pt-12">
       <div className="mx-auto w-full max-w-[585px]">
         <Link
-          href="/admin/update-workout"
+          href="/admin/workouts"
           className="mb-6 inline-block text-[10px] uppercase tracking-[0.2em] text-zinc-500 transition-colors hover:text-white sm:text-[11px]"
         >
           ← All workouts
@@ -212,7 +229,9 @@ export default function EditWorkout({ workout }) {
             }}
             className={fieldClass}
           />
-          {fieldErrors.title && <p className={errorClass}>{fieldErrors.title}</p>}
+          {fieldErrors.title && (
+            <p className={errorClass}>{fieldErrors.title}</p>
+          )}
         </div>
 
         {/* Category */}
@@ -223,12 +242,20 @@ export default function EditWorkout({ workout }) {
             disabled={busy}
             onChange={(e) => {
               setCategory(e.target.value);
+              setMuscleGroup("");
+              setSubMuscle("");
               clearFieldError("category");
+              clearFieldError("muscleGroup");
+              clearFieldError("subMuscle");
             }}
             className={`${fieldClass} [color-scheme:dark]`}
           >
             {CATEGORY_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value} className="bg-black text-white">
+              <option
+                key={o.value}
+                value={o.value}
+                className="bg-black text-white"
+              >
                 {o.label}
               </option>
             ))}
@@ -237,6 +264,25 @@ export default function EditWorkout({ workout }) {
             <p className={errorClass}>{fieldErrors.category}</p>
           )}
         </div>
+
+        {/* Muscle group + target area */}
+        <MuscleSelect
+          category={category}
+          group={muscleGroup}
+          sub={subMuscle}
+          disabled={busy}
+          errors={fieldErrors}
+          onGroup={(v) => {
+            setMuscleGroup(v);
+            setSubMuscle("");
+            clearFieldError("muscleGroup");
+            clearFieldError("subMuscle");
+          }}
+          onSub={(v) => {
+            setSubMuscle(v);
+            clearFieldError("subMuscle");
+          }}
+        />
 
         {/* Start image */}
         <div className="mb-6 sm:mb-8">
@@ -258,7 +304,9 @@ export default function EditWorkout({ workout }) {
               }}
             />
             <span className="min-w-0 flex-1 truncate text-xs text-zinc-500">
-              {startImageUrl !== saved.startImageUrl ? "New image selected" : "Current image"}
+              {startImageUrl !== saved.startImageUrl
+                ? "New image selected"
+                : "Current image"}
             </span>
           </div>
           {fieldErrors.startImageUrl && (
@@ -286,7 +334,9 @@ export default function EditWorkout({ workout }) {
               }}
             />
             <span className="min-w-0 flex-1 truncate text-xs text-zinc-500">
-              {finishImageUrl !== saved.finishImageUrl ? "New image selected" : "Current image"}
+              {finishImageUrl !== saved.finishImageUrl
+                ? "New image selected"
+                : "Current image"}
             </span>
           </div>
           {fieldErrors.finishImageUrl && (
@@ -392,7 +442,8 @@ export default function EditWorkout({ workout }) {
             <div className="border border-red-500/50 bg-red-500/5 p-4">
               <p className="mb-4 text-sm leading-snug text-white/80">
                 Delete &quot;{saved.title}&quot;? It will also be removed from
-                every user&apos;s workout history and stats. This can&apos;t be undone.
+                every user&apos;s workout history and stats. This can&apos;t be
+                undone.
               </p>
               <div className="grid grid-cols-2 gap-2">
                 <button
