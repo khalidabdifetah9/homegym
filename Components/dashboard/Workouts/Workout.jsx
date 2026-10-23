@@ -19,13 +19,17 @@ function beep(freq = 880, duration = 0.15) {
     gain.connect(audioCtx.destination);
     osc.start();
     osc.stop(audioCtx.currentTime + duration);
-  } catch {}
+  } catch {
+    // sound is optional
+  }
 }
 
 function buzz(ms = 250) {
   try {
     navigator.vibrate?.(ms);
-  } catch {}
+  } catch {
+    // vibration is optional
+  }
 }
 
 function formatTime(sec) {
@@ -51,7 +55,7 @@ export default function Workout({ workoutPlan }) {
     estimatedMinutes,
   } = workoutPlan;
 
-  const [phase, setPhase] = useState("overview");
+  const [phase, setPhase] = useState("overview"); // overview | ready | work | rest | done
   const [exIndex, setExIndex] = useState(0);
   const [setNumber, setSetNumber] = useState(1);
   const [timeLeft, setTimeLeft] = useState(0);
@@ -59,34 +63,31 @@ export default function Workout({ workoutPlan }) {
   const [paused, setPaused] = useState(false);
   const [setsDone, setSetsDone] = useState(0);
   const [elapsed, setElapsed] = useState(0);
-  const [saveStatus, setSaveStatus] = useState("idle");
+  const [saveStatus, setSaveStatus] = useState("idle"); // idle | saving | saved | error
 
   const endAtRef = useRef(0);
   const pausedMsRef = useRef(0);
   const startedAtRef = useRef(0);
-  const setsLogRef = useRef({});
+  const setsLogRef = useRef({}); // exerciseId -> sets completed
 
   const current = exercises[exIndex];
+  const totalSets = exercises.reduce((n, e) => n + e.sets, 0);
+  const doneBefore = current
+    ? exercises.slice(0, exIndex).reduce((n, e) => n + e.sets, 0) +
+      (setNumber - 1) +
+      (phase === "rest" ? 1 : 0)
+    : 0;
+  const progress = phase === "done" ? 1 : totalSets ? doneBefore / totalSets : 0;
+
   // Group consecutive exercises by muscle group for the overview
   const sections = [];
   exercises.forEach((e, i) => {
     const last = sections[sections.length - 1];
     if (last && last.key === e.groupKey) last.items.push({ e, i });
-    else
-      sections.push({
-        key: e.groupKey,
-        label: e.groupLabel,
-        items: [{ e, i }],
-      });
+    else sections.push({ key: e.groupKey, label: e.groupLabel, items: [{ e, i }] });
   });
-  const totalSets = exercises.reduce((n, e) => n + e.sets, 0);
-  const doneBefore =
-    exercises.slice(0, exIndex).reduce((n, e) => n + e.sets, 0) +
-    (setNumber - 1) +
-    (phase === "rest" ? 1 : 0);
-  const progress =
-    phase === "done" ? 1 : totalSets ? doneBefore / totalSets : 0;
 
+  // ---------- timer ----------
   const startTimer = (seconds) => {
     endAtRef.current = Date.now() + seconds * 1000;
     setTotalTime(seconds);
@@ -94,21 +95,22 @@ export default function Workout({ workoutPlan }) {
     setPaused(false);
   };
 
+  // Counts down from a fixed end time, so it stays accurate if the tab sleeps
   useEffect(() => {
     if ((phase !== "work" && phase !== "rest") || paused) return;
     const id = setInterval(() => {
-      setTimeLeft(
-        Math.max(0, Math.ceil((endAtRef.current - Date.now()) / 1000)),
-      );
+      setTimeLeft(Math.max(0, Math.ceil((endAtRef.current - Date.now()) / 1000)));
     }, 250);
     return () => clearInterval(id);
   }, [phase, paused]);
 
+  // 3-2-1 beeps
   useEffect(() => {
     if ((phase !== "work" && phase !== "rest") || paused) return;
     if (timeLeft > 0 && timeLeft <= 3) beep(660, 0.12);
   }, [timeLeft, phase, paused]);
 
+  // When the timer hits zero, move on automatically
   useEffect(() => {
     if (paused || timeLeft > 0) return;
     if (phase === "work") {
@@ -121,6 +123,7 @@ export default function Workout({ workoutPlan }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeLeft, phase, paused]);
 
+  // Keep the screen awake during the workout
   useEffect(() => {
     const active = phase === "ready" || phase === "work" || phase === "rest";
     if (!active || !("wakeLock" in navigator)) return;
@@ -139,10 +142,13 @@ export default function Workout({ workoutPlan }) {
       cancelled = true;
       try {
         lock?.release()?.catch(() => {});
-      } catch {}
+      } catch {
+        // ignore
+      }
     };
   }, [phase]);
 
+  // ---------- saving ----------
   const saveWorkout = async (durationMinutes) => {
     const done = exercises
       .filter((e) => setsLogRef.current[e.id] > 0)
@@ -170,6 +176,7 @@ export default function Workout({ workoutPlan }) {
     }
   };
 
+  // ---------- flow ----------
   const finish = () => {
     const seconds = Math.round((Date.now() - startedAtRef.current) / 1000);
     setElapsed(seconds);
@@ -179,10 +186,10 @@ export default function Workout({ workoutPlan }) {
   };
 
   const startWorkout = () => {
+    beep(440, 0.01); // unlocks sound on this tap
+    startedAtRef.current = Date.now();
     setsLogRef.current = {};
     setSaveStatus("idle");
-    beep(440, 0.01);
-    startedAtRef.current = Date.now();
     setExIndex(0);
     setSetNumber(1);
     setSetsDone(0);
@@ -207,9 +214,7 @@ export default function Workout({ workoutPlan }) {
       return;
     }
     setPhase("rest");
-    startTimer(
-      isLastSet ? settings.restExerciseSeconds : settings.restSetSeconds,
-    );
+    startTimer(isLastSet ? settings.restExerciseSeconds : settings.restSetSeconds);
   }
 
   function finishRest() {
@@ -262,10 +267,11 @@ export default function Workout({ workoutPlan }) {
     if (window.confirm("End this workout?")) resetToOverview();
   };
 
+  // ---------- overview ----------
   if (phase === "overview") {
     return (
-      <main className="min-h-svh bg-[#0a0a0a] px-5 pb-16 pt-24 font-poppins text-white md:px-17.5 md:pt-10">
-        <div className="mx-auto w-full max-w-6xl">
+      <main className="min-h-svh bg-[#0a0a0a] px-5 pb-16 pt-24 font-poppins text-white md:px-17.5 md:pt-32">
+        <div className=" w-full mx-auto md:ml-100 md:-mt-21 max-w-6xl ">
           <p className="mb-3 text-[10px] uppercase tracking-[0.2em] text-white/50 sm:text-xs">
             Your workout
           </p>
@@ -273,6 +279,7 @@ export default function Workout({ workoutPlan }) {
             {splitLabel} day
           </h1>
 
+          {/* Split tabs */}
           <div className="mb-8 grid grid-cols-3 gap-2">
             {splits.map((s) => (
               <Link
@@ -294,29 +301,28 @@ export default function Workout({ workoutPlan }) {
             ))}
           </div>
 
+          {/* Level */}
           <div className="mb-6 border border-white/20 p-4">
             <p className="mb-1 text-[10px] uppercase tracking-[0.2em] text-white/50">
               Your level
             </p>
-            <p className="mb-1 text-xl font-semibold uppercase">
-              {level.label}
-            </p>
+            <p className="mb-1 text-xl font-semibold uppercase">{level.label}</p>
             <p className="text-xs leading-snug text-white/50">{level.reason}</p>
+            <p className="mt-2 text-xs leading-snug text-white/70">
+              Everyone does the full {splitLabel.toLowerCase()} day. Your level sets
+              how many sets and reps you do.
+            </p>
           </div>
 
           {exercises.length === 0 ? (
             <p className="border-l-2 border-red-500 bg-red-500/10 px-4 py-3 text-sm text-red-300">
-              No {splitLabel.toLowerCase()} workouts have been added yet. Try
-              another day.
+              No {splitLabel.toLowerCase()} workouts have been added yet. Try another day.
             </p>
           ) : (
             <>
               <div className="mb-8 grid grid-cols-2 gap-2 md:grid-cols-4">
                 <Stat label="Exercises" value={exercises.length} />
-                <Stat
-                  label="Sets × reps"
-                  value={`${settings.sets} × ${settings.reps}`}
-                />
+                <Stat label="Sets × reps" value={`${settings.sets} × ${settings.reps}`} />
                 <Stat
                   label="Rest"
                   value={`${settings.restSetSeconds}s / ${settings.restExerciseSeconds}s`}
@@ -324,6 +330,7 @@ export default function Workout({ workoutPlan }) {
                 />
                 <Stat label="Time" value={`~${estimatedMinutes} min`} />
               </div>
+
               <div className="mb-8 flex flex-col gap-6">
                 {sections.map((s) => (
                   <div key={s.key}>
@@ -334,10 +341,7 @@ export default function Workout({ workoutPlan }) {
 
                     <ol className="flex flex-col gap-2">
                       {s.items.map(({ e, i }) => (
-                        <li
-                          key={e.id}
-                          className="flex items-center gap-4 bg-[#141414] p-3"
-                        >
+                        <li key={e.id} className="flex items-center gap-4 bg-[#141414] p-3">
                           <span className="w-6 text-sm text-white/40">
                             {String(i + 1).padStart(2, "0")}
                           </span>
@@ -369,13 +373,16 @@ export default function Workout({ workoutPlan }) {
                   </div>
                 ))}
               </div>
-              <button
-                type="button"
-                onClick={startWorkout}
-                className={`${primaryBtn} w-full`}
-              >
+
+              <button type="button" onClick={startWorkout} className={`${primaryBtn} w-full`}>
                 Start workout
               </button>
+              <Link
+                href="/workout_guide/stats"
+                className={`${secondaryBtn} mt-2 block text-center`}
+              >
+                My Status
+              </Link>
               <p className="mt-4 text-center text-xs text-white/40">
                 Warm up for 3 to 5 minutes before you begin.
               </p>
@@ -386,6 +393,7 @@ export default function Workout({ workoutPlan }) {
     );
   }
 
+  // ---------- done ----------
   if (phase === "done") {
     const otherSplits = splits.filter((s) => s.key !== split);
     return (
@@ -400,10 +408,7 @@ export default function Workout({ workoutPlan }) {
 
           <div className="mb-8 grid grid-cols-2 gap-2">
             <Stat label="Sets done" value={setsDone} />
-            <Stat
-              label="Time"
-              value={`${Math.max(1, Math.round(elapsed / 60))} min`}
-            />
+            <Stat label="Time" value={`${Math.max(1, Math.round(elapsed / 60))} min`} />
           </div>
 
           {saveStatus !== "idle" && (
@@ -412,8 +417,8 @@ export default function Workout({ workoutPlan }) {
                 saveStatus === "saved"
                   ? "text-green-400"
                   : saveStatus === "error"
-                    ? "text-red-400"
-                    : "text-white/50"
+                  ? "text-red-400"
+                  : "text-white/50"
               }`}
             >
               {saveStatus === "saving" && "Saving your workout..."}
@@ -423,9 +428,7 @@ export default function Workout({ workoutPlan }) {
                   Could not save.{" "}
                   <button
                     type="button"
-                    onClick={() =>
-                      saveWorkout(Math.max(1, Math.round(elapsed / 60)))
-                    }
+                    onClick={() => saveWorkout(Math.max(1, Math.round(elapsed / 60)))}
                     className="underline underline-offset-4"
                   >
                     Try again
@@ -436,20 +439,22 @@ export default function Workout({ workoutPlan }) {
           )}
 
           <div className="flex flex-col gap-2">
+            <Link
+              href="/workout_guide/stats"
+              className={`${secondaryBtn} block text-center`}
+            >
+              My Status
+            </Link>
             {otherSplits.map((s) => (
               <Link
                 key={s.key}
-                href={`/dashboard/workouts?split=${s.key}`}
+                href={`/workout_guide?split=${s.key}`}
                 className={`${secondaryBtn} block`}
               >
                 Plan a {s.label} day
               </Link>
             ))}
-            <button
-              type="button"
-              onClick={resetToOverview}
-              className={primaryBtn}
-            >
+            <button type="button" onClick={resetToOverview} className={primaryBtn}>
               Back to overview
             </button>
           </div>
@@ -458,11 +463,13 @@ export default function Workout({ workoutPlan }) {
     );
   }
 
+  // ---------- ready / work / rest ----------
   const nextExercise = setNumber < current.sets ? null : exercises[exIndex + 1];
 
   return (
     <main className="min-h-svh bg-[#0a0a0a] px-5 pb-40 pt-24 font-poppins text-white md:px-17.5 md:pt-28">
-      <div className="mx-auto w-full max-w-3xl">
+      <div className="mx-auto w-full max-w-6xl md:ml-100 md:-mt-20">
+        {/* Progress */}
         <div className="mb-6">
           <div className="mb-3 flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-white/50 sm:text-xs">
             <span>
@@ -499,6 +506,9 @@ export default function Workout({ workoutPlan }) {
               </p>
               {nextExercise ? (
                 <>
+                  <p className="mb-1 text-[10px] uppercase tracking-[0.2em] text-sky-400">
+                    {nextExercise.muscleLabel}
+                  </p>
                   <p className="mb-3 text-lg font-semibold uppercase">
                     {nextExercise.title}
                   </p>
@@ -514,15 +524,6 @@ export default function Workout({ workoutPlan }) {
                       label="Finish"
                     />
                   </div>
-                  {nextExercise.videoUrl && (
-                    <div className="mt-2">
-                      <VideoPlayer
-                        key={nextExercise.id}
-                        src={nextExercise.videoUrl}
-                        label="Video"
-                      />
-                    </div>
-                  )}
                 </>
               ) : (
                 <p className="text-lg font-semibold uppercase">
@@ -548,6 +549,7 @@ export default function Workout({ workoutPlan }) {
               </p>
             </div>
 
+            {/* Start and finish side by side */}
             <div className="mb-8 grid grid-cols-2 gap-2 md:gap-3">
               <PoseImage
                 src={current.startImageUrl}
@@ -560,16 +562,6 @@ export default function Workout({ workoutPlan }) {
                 label="2 · Finish"
               />
             </div>
-
-            {current.videoUrl && (
-              <div className="mb-8">
-                <VideoPlayer
-                  key={current.id}
-                  src={current.videoUrl}
-                  label="3 · Video demonstration"
-                />
-              </div>
-            )}
 
             {phase === "work" && (
               <div className="mb-8">
@@ -594,16 +586,13 @@ export default function Workout({ workoutPlan }) {
         )}
       </div>
 
+      {/* Bottom action bar */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/20 bg-black/95 px-5 py-4 backdrop-blur">
         <div className="mx-auto flex max-w-3xl flex-col gap-2">
           <div className="flex gap-2">
             {phase === "ready" && (
               <>
-                <button
-                  type="button"
-                  onClick={skipExercise}
-                  className={secondaryBtn}
-                >
+                <button type="button" onClick={skipExercise} className={secondaryBtn}>
                   Skip
                 </button>
                 <button type="button" onClick={startSet} className={primaryBtn}>
@@ -614,18 +603,10 @@ export default function Workout({ workoutPlan }) {
 
             {phase === "work" && (
               <>
-                <button
-                  type="button"
-                  onClick={togglePause}
-                  className={secondaryBtn}
-                >
+                <button type="button" onClick={togglePause} className={secondaryBtn}>
                   {paused ? "Resume" : "Pause"}
                 </button>
-                <button
-                  type="button"
-                  onClick={finishSet}
-                  className={primaryBtn}
-                >
+                <button type="button" onClick={finishSet} className={primaryBtn}>
                   Set done
                 </button>
               </>
@@ -633,18 +614,10 @@ export default function Workout({ workoutPlan }) {
 
             {phase === "rest" && (
               <>
-                <button
-                  type="button"
-                  onClick={addTime}
-                  className={secondaryBtn}
-                >
+                <button type="button" onClick={addTime} className={secondaryBtn}>
                   +15s
                 </button>
-                <button
-                  type="button"
-                  onClick={finishRest}
-                  className={primaryBtn}
-                >
+                <button type="button" onClick={finishRest} className={primaryBtn}>
                   Skip rest
                 </button>
               </>
@@ -659,9 +632,7 @@ export default function Workout({ workoutPlan }) {
 function Stat({ label, value, hint }) {
   return (
     <div className="border border-white/20 p-4 text-left">
-      <p className="mb-1 text-[10px] uppercase tracking-[0.2em] text-white/50">
-        {label}
-      </p>
+      <p className="mb-1 text-[10px] uppercase tracking-[0.2em] text-white/50">{label}</p>
       <p className="text-lg font-semibold">{value}</p>
       {hint && <p className="text-[10px] text-white/40">{hint}</p>}
     </div>
@@ -687,32 +658,6 @@ function PoseImage({ src, alt, label }) {
   );
 }
 
-function VideoPlayer({ src, label }) {
-  const [failed, setFailed] = useState(false);
-
-  if (failed) return null;
-
-  return (
-    <figure>
-      <div className="relative w-full bg-[#d4d4d4]">
-        <video
-          src={src}
-          controls
-          loop
-          muted
-          playsInline
-          preload="metadata"
-          onError={() => setFailed(true)}
-          className="aspect-video w-full bg-black object-contain"
-        />
-      </div>
-      <figcaption className="mt-2 text-center text-[10px] uppercase tracking-[0.2em] text-white/60">
-        {label}
-      </figcaption>
-    </figure>
-  );
-}
-
 function TimerRing({ timeLeft, total, label, tone }) {
   const R = 54;
   const C = 2 * Math.PI * R;
@@ -721,15 +666,7 @@ function TimerRing({ timeLeft, total, label, tone }) {
   return (
     <div className="relative mx-auto h-48 w-48 sm:h-56 sm:w-56">
       <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
-        <circle
-          cx="60"
-          cy="60"
-          r={R}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="5"
-          className="text-white/10"
-        />
+        <circle cx="60" cy="60" r={R} fill="none" stroke="currentColor" strokeWidth="5" className="text-white/10" />
         <circle
           cx="60"
           cy="60"

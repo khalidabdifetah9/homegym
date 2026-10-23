@@ -7,12 +7,6 @@ import { userProfiles, benchExercises } from "@/db/schema";
 import { generateWorkoutPlan, SPLITS } from "@/lib/generateWorkoutPlan";
 import Workout from "@/Components/dashboard/Workouts/Workout";
 
-export const metadata = {
-  title: "Guided Workout Session | ወንዳወንድ Home Gym",
-  description:
-    "Step by step form guidance and real time set logging tailored specifically for your ወንዳወንድ Home Gym bench",
-};
-
 export const dynamic = "force-dynamic";
 
 export default async function WorkoutGuidePage({ searchParams }) {
@@ -21,14 +15,17 @@ export default async function WorkoutGuidePage({ searchParams }) {
 
   const { split: splitParam } = await searchParams;
 
+  // 1. The user's profile
   const [profile] = await db
     .select()
     .from(userProfiles)
     .where(eq(userProfiles.userId, session.user.id))
     .limit(1);
 
-  if (!profile) redirect("/user-details");
+  // No profile yet: send them to the UserDetails form
+  if (!profile) redirect("/workout_guide/details");
 
+  // 2. All workouts added by the admin
   const exercises = await db
     .select({
       id: benchExercises.id,
@@ -38,38 +35,29 @@ export default async function WorkoutGuidePage({ searchParams }) {
       subMuscle: benchExercises.subMuscle,
       startImageUrl: benchExercises.startImageUrl,
       finishImageUrl: benchExercises.finishImageUrl,
-      videoUrl: benchExercises.videoUrl,
       instructions: benchExercises.instructions,
     })
     .from(benchExercises);
 
-  const videoById = new Map(exercises.map((e) => [e.id, e.videoUrl ?? null]));
-
+  // 3. Today's split rotates Push -> Pull -> Legs (Ethiopia time, UTC+3).
+  //    The user can pick another one with ?split=pull
   const eat = new Date(Date.now() + 3 * 60 * 60 * 1000);
   const dateKey = eat.toISOString().slice(0, 10);
   const dayNumber = Math.floor(eat.getTime() / 86400000);
   const todaySplit = SPLITS[dayNumber % SPLITS.length];
   const split = SPLITS.includes(splitParam) ? splitParam : todaySplit;
 
-  const generated = generateWorkoutPlan(
-    profile,
-    exercises,
-    split,
-    `${session.user.id}|${dateKey}`,
-  );
-
+  // 4. Build the plan on the server
   const plan = {
-    ...generated,
-    exercises: generated.exercises.map((e) => ({
-      ...e,
-      videoUrl: e.videoUrl ?? videoById.get(e.id) ?? null,
-    })),
+    ...generateWorkoutPlan(
+      profile,
+      exercises,
+      split,
+      `${session.user.id}|${dateKey}`,
+    ),
     todaySplit,
   };
 
-  return (
-    <div className="md:ml-50">
-      <Workout key={plan.split} workoutPlan={plan} />
-    </div>
-  );
+  // 5. Pass it to the client UI
+  return <Workout key={plan.split} workoutPlan={plan} />;
 }
